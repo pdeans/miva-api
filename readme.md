@@ -64,7 +64,7 @@ $api->func('OrderCustomFieldList_Load')->add();
 
 This section showcases how to construct and add function parameters.
 
-##### Common Filter List Parameters
+**Common Filter List Parameters**
 
 Each common [filter list parameter](https://docs.miva.com/json-api/list-load-query-overview#filter-list-parameters) for the `xxxList_Load_Query` functions has a corresponding helper method to seamlessly set the parameter value. The example below shows each of the methods in action.
 
@@ -79,7 +79,7 @@ $api->func('OrderList_Load_Query')
     ->add();
 ```
 
-##### Function Request Filters
+**Function Request Filters**
 
 Most of the function search/display filters have an associated helper method that acts as a shorthand, or factory for creating the respective filter. The `filter` method must be used for any filter that does not have a linked helper method, as shown in the example above. This method can also be used to generate the filters with helper methods as well. The method accepts two arguments, with the first argument always being the filter name. The second argument takes the filter value, which will vary per filter type.
 
@@ -209,7 +209,7 @@ Example:
 $api->func('ProductList_Load_Query')->show('Active')->add();
 ```
 
-##### Function Request Input Parameters
+**Function Request Input Parameters**
 
 **Passphrase**
 
