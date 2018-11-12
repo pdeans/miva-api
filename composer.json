@@ -1,0 +1,26 @@
+{
+	"name": "pdeans/miva-api",
+	"type": "library",
+	"description": "PHP SDK library for the Miva JSON API.",
+	"license": "MIT",
+	"keywords": ["Miva JSON API SDK", "Miva JSON API", "Miva API SDK", "Miva API", "Miva SDK", "Miva"],
+	"authors": [
+		{
+			"name": "Patrick Stearns",
+			"email": "pdeans1986@gmail.com"
+		}
+	],
+	"require": {
+		"php": "^7.1.3",
+		"pdeans/http": "^1.1",
+		"tightenco/collect": "^5.7"
+	},
+	"require-dev": {
+		"pdeans/debuggers-vardumper": "^1.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"pdeans\\Miva\\Api\\": "src"
+		}
+	}
+}
