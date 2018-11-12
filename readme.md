@@ -1,6 +1,6 @@
-## Miva JSON Api PHP SDK
+## Miva JSON Api PHP Library
 
-PHP SDK library for interacting with the Miva JSON API.
+PHP library for interacting with the Miva JSON API.
 
 ### Installation
 
@@ -12,7 +12,7 @@ $ composer require pdeans/miva-api
 
 ### Configuring the Api Manager
 
-Utilizing the SDK to interact with the Api is accomplished via the `Manager` class. The `Manager` class accepts an array containing Api and HTTP client (cURL) configuration options in key/value format.
+Utilizing the library to interact with the Api is accomplished via the `Manager` class. The `Manager` class accepts an array containing Api and HTTP client (cURL) configuration options in key/value format.
 
 #### Manager Configuration Options
 
@@ -240,7 +240,7 @@ This section covers configuring and issuing Api requests.
 
 **HTTP Headers**
 
-You may specify which HTTP headers are attached to all Api requests with the `addHeader` and `addHeaders` methods. Please note that the SDK library automatically creates and attaches the `Content-Type: application/json` and `X-Miva-API-Authorization` headers to each Api request.
+You may specify which HTTP headers are attached to all Api requests with the `addHeader` and `addHeaders` methods. Please note that the library automatically creates and attaches the `Content-Type: application/json` and `X-Miva-API-Authorization` headers to each Api request.
 
 ```php
 // Add single header at a time
@@ -375,4 +375,4 @@ var_dump($api->getFunctionList());
 
 #### Further Reading
 
-Having a general understanding of the [Miva JSON Api](https://docs.miva.com/json-api/) configuration and schema is highly recommended before using the SDK library.
+Having a general understanding of the [Miva JSON Api](https://docs.miva.com/json-api/) configuration and schema is highly recommended before using the library.
