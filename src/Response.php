@@ -112,7 +112,7 @@ class Response
             return $this->getFunction($function_name);
         }
 
-        return new Collection($this->functions);
+        return $this->functions;
     }
 
     /**
@@ -172,6 +172,6 @@ class Response
             $this->success = true;
         }
 
-        $this->functions = $functions;
+        $this->functions = new Collection($functions);
     }
 }
