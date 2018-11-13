@@ -288,7 +288,7 @@ echo '<pre>', $api->getRequestBody(), '</pre>';
 
 #### API Responses
 
-By default, Api responses will return a `pdeans\Miva\Api\Response` instance. The `Response` object hosts a number of helper methods for interacting with the Api responses.
+By default, Api responses will return a `pdeans\Miva\Api\Response` class instance. The `Response` object hosts a number of helper methods for interacting with the Api responses.
 
 **Checking For Request Errors**
 
