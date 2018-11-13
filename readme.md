@@ -81,13 +81,13 @@ $api->func('OrderList_Load_Query')
 
 **Function Request Filters**
 
-Most of the function search/display filters have an associated helper method that acts as a shorthand, or factory for creating the respective filter. The `filter` method must be used for any filter that does not have a linked helper method, as shown in the example above. This method can also be used to generate the filters with helper methods as well. The method accepts two arguments, with the first argument always being the filter name. The second argument takes the filter value, which will vary per filter type.
+Most of the function search/display filters have an associated helper method that acts as a shorthand, or factory for creating the respective filter. The `filter` method must be used for any filter that does not have a linked helper method, as shown in the example above. This method can also be used to create each filter covered below. The method accepts two arguments, with the first argument always being the filter name. The second argument takes the filter value, which will vary per filter type.
 
 The available search/display helper methods are covered below. 
 
 **Search**
 
-The `search` method may be used to attach a search filter to a function's filter list. The most basic call to `search` requires three arguments. The first argument is the search field column. The second argument is the search operator, which can be any of the supported Api search operators. Finally, the third argument is the value to evaluate against the search column.
+The `search` method may be used to attach a search filter to a function's filter list. The most basic call to `search` requires three arguments. The first argument is the search field column. The second argument is the search operator, which can be any of the supported Api [search operators](https://docs.miva.com/json-api/list-load-query-overview#filter-list-parameters). Finally, the third argument is the value to evaluate against the search column.
 
 Below is an example to issue a search filter for a specific product code:
 
@@ -113,7 +113,7 @@ $api->func('ProductList_Load_Query')
     ->add();
 
 $api->func('ProductList_Load_Query')
-    ->search('price', 'GE', 10.00)
+    ->search('price', 'GE', 2.20)
     ->add();
     
 $api->func('ProductList_Load_Query')
@@ -126,7 +126,7 @@ The `search` method can be issued multiple times to perform an AND search:
 ```php
 $api->func('ProductList_Load_Query')
     ->search('Category', 'IN', '13707')
-    ->search('price', 'GT', 50)
+    ->search('price', 'GT', 19.86)
     ->add();
 ```
 
@@ -313,7 +313,7 @@ $response = $api->func('ProductList_Load_Query')->add()->send();
 echo '<pre>', $response->getBody(), '</pre>';
 ```
 
-To receive an iterable form of the Api response, issue the `getResponse` method. This will return a key/value array, with the array keys mapping to the function names supplied to the Api request function list. The keys are mapped in identical order to the Api request function list. Each function key value is a Laravel style `Collection` instance. Refer to the list of [available methods](https://laravel.com/docs/5.7/eloquent-collections#available-methods), as well as the `Collection` class [documentation](https://laravel.com/docs/5.7/collections) to see all of the handy features that collections offer. Each collection item corresponds to each request iteration of the function, in the same order that the request was issued.
+To receive an iterable form of the Api response, issue the `getResponse` method. This will return a Laravel style `Collection` object, with the collection items mapping to the function names supplied to the Api request function list. The items are sorted in identical order to the Api request function list. Each collection item or "function", contains its own `Collection` instance. These collection items correlate to each of the function's iterations that were sent in the request. The items are sorted in the same order that they were issued in the request. Refer to the list of [available methods](https://laravel.com/docs/5.7/collections#method-listing), as well as the `Collection` class [documentation](https://laravel.com/docs/5.7/collections) to see all of the handy and powerful features that collections offer.
 
 The `getFunction` method may be used to explicitly return the response results for a specific function name. This can also be accomplished with the `getResponse` method by passing the function name as the first argument.
 
@@ -331,6 +331,11 @@ var_dump($results);
 
 // Access function key on response array
 var_dump($results['OrderCustomFieldList_Load']);
+
+// Results are also iterable (same for result items)
+foreach ($results as $result) {
+    var_dump($result);
+}
 
 // Isolate and return responses for specific function
 var_dump($response->getFunction('ProductList_Load_Query'));
