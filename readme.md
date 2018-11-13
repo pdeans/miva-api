@@ -234,11 +234,11 @@ $api->func('Product_Insert')
     ->add();
 ```
 
-#### API Requests
+### API Requests
 
 This section covers configuring and issuing Api requests.
 
-**HTTP Headers**
+#### HTTP Headers
 
 You may specify which HTTP headers are attached to all Api requests with the `addHeader` and `addHeaders` methods. Please note that the library automatically creates and attaches the `Content-Type: application/json` and `X-Miva-API-Authorization` headers to each Api request.
 
@@ -254,7 +254,7 @@ $api->addHeaders([
 ]);
 ```
 
-**Sending Requests**
+#### Sending Requests
 
 The `send` method will issue an Api request, and return the results in the library's `Response` object. If you wish to bypass this object and return the raw JSON response from the Api, pass a `true` value as the first argument for the `send` method.
 
@@ -342,9 +342,11 @@ var_dump($response->getFunction('ProductList_Load_Query'));
 var_dump($response->getResponse('OrderCustomFieldList_Load'));
 ```
 
-#### Helpers
+### Helpers
 
-**Troubleshooting Api Requests And Responses**
+This section covers library helper methods.
+
+#### Troubleshooting Api Requests And Responses
 
 To aid in troubleshooting Api requests and responses, [PSR-7 Request](http://www.php-fig.org/psr/psr-7/) and [Response](http://www.php-fig.org/psr/psr-7/) objects can be obtained using the `getLastRequest` and `getLastResponse` methods respectively after an Api request has been issued:
 
@@ -378,6 +380,6 @@ $api->func('OrderCustomFieldList_Load')->add();
 var_dump($api->getFunctionList());
 ```
 
-#### Further Reading
+### Further Reading
 
 Having a general understanding of the [Miva JSON Api](https://docs.miva.com/json-api/) configuration and schema is highly recommended before using the library.
