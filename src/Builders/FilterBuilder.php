@@ -76,38 +76,36 @@ class FilterBuilder implements BuilderInterface
         $name = strtolower($this->name);
 
         if ($name === 'search') {
+            $validateSearch = function($search) {
+                if (!isset($search['field'])) {
+                    throw new MissingRequiredValueException('Missing required filter property "field".');
+                } elseif (!isset($search['operator'])) {
+                    throw new MissingRequiredValueException('Missing required filter property "operator".');
+                } elseif (
+                    !isset($search['value']) &&
+                    !in_array(strtoupper($search['operator']), SearchFilterBuilder::getNullOperators())
+                ) {
+                    throw new MissingRequiredValueException('Missing required filter property "value".');
+                }
+            };
+
             if (isset($this->value[0])) {
                 foreach ($this->value as $search_filter) {
-                    if (!isset($search_filter['field'])) {
-                        throw new MissingRequiredValueException('Missing required filter property "field".');
-                    } elseif (!isset($search_filter['operator'])) {
-                        throw new MissingRequiredValueException('Missing required filter property "operator".');
-                    } elseif (!isset($search_filter['value'])) {
-                        throw new MissingRequiredValueException('Missing required filter property "value".');
-                    }
+                    $validateSearch($search_filter);
 
                     $this->value_list[] = new SearchFilterBuilder(
                         $search_filter['field'],
                         $search_filter['operator'],
-                        $search_filter['value']
+                        (isset($search_filter['value']) ? $search_filter['value'] : null)
                     );
                 }
             } else {
-                if (!isset($this->value['field'])) {
-                    throw new MissingRequiredValueException('Missing required filter property "field".');
-                } elseif (!isset($this->value['operator'])) {
-                    throw new MissingRequiredValueException('Missing required filter property "operator".');
-                } elseif (
-                    !isset($this->value['value']) &&
-                    !in_array(strtoupper($this->value['operator']), SearchFilterBuilder::getNullOperators())
-                ) {
-                    throw new MissingRequiredValueException('Missing required filter property "value".');
-                }
+                $validateSearch($this->value);
 
                 $this->value_list[] = new SearchFilterBuilder(
                     $this->value['field'],
                     $this->value['operator'],
-                    $this->value['value']
+                    (isset($this->value['value']) ? $this->value['value'] : null)
                 );
             }
         } elseif ($name === 'ondemandcolumns') {
