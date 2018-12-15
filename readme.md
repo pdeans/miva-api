@@ -1,8 +1,35 @@
-## Miva JSON Api PHP Library
+# Miva JSON Api PHP Library
 
 PHP library for interacting with the Miva JSON API.
 
-### Installation
+### Table Of Contents
+
+- [Installation](#installation)
+- [Configuring the Api Manager](#configuring-the-api-manager)
+    * [Manager Configuration Options](#manager-configuration-options)
+- [Authentication](#authentication)
+- [JSON Request Format](#json-request-format)
+- [Function Builder](#function-builder)
+    * [Function Request Parameters](#function-request-parameters)
+        + [Common Filter List Parameters](#common-filter-list-parameters)
+        + [Function Request Filters](#function-request-filters)
+            - [Search](#search)
+            - [On Demand Columns](#on-demand-columns)
+            - [Show](#show)
+        + [Function Request Input Parameters](#function-request-input-parameters)
+            - [Passphrase](#passphrase)
+            - [Additional Input Parameters](#additional-input-parameters)
+- [API Requests](#api-requests)
+    * [HTTP Headers](#http-headers)
+    * [Sending Requests](#sending-requests)
+    * [API Responses](#api-responses)
+        - [Checking For Request Errors](#checking-for-request-errors)
+        - [Response Body](#response-body)
+- [Helpers](#helpers)
+    * [Troubleshooting Api Requests And Responses](#troubleshooting-api-requests-and-responses)
+    * [Further Reading](#further-reading)
+
+## Installation
 
 Install via [Composer](https://getcomposer.org/).
 
@@ -10,11 +37,11 @@ Install via [Composer](https://getcomposer.org/).
 $ composer require pdeans/miva-api
 ```
 
-### Configuring the Api Manager
+## Configuring the Api Manager
 
 Utilizing the library to interact with the Api is accomplished via the `Manager` class. The `Manager` class accepts an array containing Api and HTTP client (cURL) configuration options in key/value format.
 
-#### Manager Configuration Options
+### Manager Configuration Options
 
 Key | Required | Type | Description
 ----|:--------:|:----:|------------
@@ -40,15 +67,15 @@ $api = new Manager([
 ]);
 ```
 
-### Authentication
+## Authentication
 
 The Miva Api authorization header will be automatically generated based on the configuration settings passed into the `Manager` object and sent along with each Api request. The configuration settings should match the Miva store settings for the given Api token.
 
-### JSON Request Format
+## JSON Request Format
 
 The required `Miva_Request_Timestamp` and `Store_Code` properties are automatically generated based on the configuration settings passed into the `Manager` object and added to the JSON body for every Api request. The `Function` property is also automatically added to the JSON body for every request. The JSON data generated for the `Function` property will vary based on the provided request function list.
 
-### Function Builder
+## Function Builder
 
 The `func` method is used to generate Api request functions. The method accepts the request function name as its only argument.
 
@@ -60,11 +87,11 @@ The `add` method is used to "publish" the function and append it to the request 
 $api->func('OrderCustomFieldList_Load')->add();
 ```
 
-#### Function Request Parameters
+### Function Request Parameters
 
 This section showcases how to construct and add function parameters.
 
-**Common Filter List Parameters**
+#### Common Filter List Parameters
 
 Each common [filter list parameter](https://docs.miva.com/json-api/list-load-query-overview#filter-list-parameters) for the `xxxList_Load_Query` functions has a corresponding helper method to seamlessly set the parameter value. The example below shows each of the methods in action.
 
@@ -75,17 +102,17 @@ $api->func('OrderList_Load_Query')
     ->sort('id')  // Column sorting value
     // ->sort('-id')    // Column sorting value -descending
     // ->sortDesc('id') // Column sorting value with explicit descending
-    ->filter('Customer_ID', 1850)
+    ->filter('Customer_ID', 1850) // Add a filter
     ->add();
 ```
 
-**Function Request Filters**
+#### Function Request Filters
 
 Most of the function search/display filters have an associated helper method that acts as a shorthand, or factory for creating the respective filter. The `filter` method must be used for any filter that does not have a linked helper method, as shown in the example above. This method can also be used to create each filter covered below. The method accepts two arguments, with the first argument always being the filter name. The second argument takes the filter value, which will vary per filter type.
 
 The available search/display helper methods are covered below. 
 
-**Search**
+##### Search
 
 The `search` method may be used to attach a search filter to a function's filter list. The most basic call to `search` requires three arguments. The first argument is the search field column. The second argument is the search operator, which can be any of the supported Api [search operators](https://docs.miva.com/json-api/list-load-query-overview#filter-list-parameters). Finally, the third argument is the value to evaluate against the search column.
 
@@ -121,7 +148,7 @@ $api->func('ProductList_Load_Query')
     ->add();
 ```
 
-The `search` method can be issued multiple times to perform an AND search:
+The `search` method can be issued multiple times to perform an **AND** search:
 
 ```php
 $api->func('ProductList_Load_Query')
@@ -130,7 +157,7 @@ $api->func('ProductList_Load_Query')
     ->add();
 ```
 
-Performing OR searches and parenthetical comparisons can be achieved by passing in an array to the `search` method as the first and only argument. The array should be modeled to match the desired search value output, with value nesting as needed:
+Performing **OR** searches and parenthetical comparisons can be achieved by passing in an array to the `search` method as the first and only argument. The array should be modeled to match the desired search value output, with value nesting as needed:
 
 ```php
 // OR search
@@ -177,7 +204,7 @@ $api->func('OrderList_Load_Query')
     ->add();
 ```
 
-**On Demand Columns**
+##### On Demand Columns
 
 Using the `ondemandcolumns` method, you can specify the explicit columns to return. The method takes one argument, the list of on demand columns to select:
 
@@ -195,7 +222,7 @@ $api->func('ProductList_Load_Query')
     ->add();
 ```
 
-**Show**
+##### Show
 
 The "show" filters can be created using the `show` method. This method takes one argument, the show filter value, which will vary per `xxxList_Load_Query` function. Note that this filter is currently available for the following functions only:
 
@@ -209,9 +236,9 @@ Example:
 $api->func('ProductList_Load_Query')->show('Active')->add();
 ```
 
-**Function Request Input Parameters**
+#### Function Request Input Parameters
 
-**Passphrase**
+##### Passphrase
 
 The `passphrase` method is used to set the Passphrase parameter. The method takes a single argument, the decryption passphrase.
 
@@ -222,23 +249,81 @@ $api->func('OrderList_Load_Query')
     ->add();
 ```
 
-**Input Parameters**
+##### Additional Input Parameters
 
-The `params` method is used to set all other input parameters. A good use case for this method are the request body parameters for the `Xx_Create` / `Xx_Insert` functions. The function accepts a key/value array which maps to the input parameter key/values as its only argument.
+The `params` method is used to set all other input parameters. Some example use cases for this method are the request body parameters for the `Xx_Create` / `Xx_Insert` / `Xx_Update` / `Xx_Delete` functions, `Module` level functions, and essentially any other functions that require input to perform actions. The function accepts a key/value array which maps to the input parameter key/values as its only argument.
 
-Example:
+Examples:
 
 ```php
+// Example: Create A New Product
 $api->func('Product_Insert')
-    ->params(['product_code' => 'new-product', 'name' => 'New Product'])
+    ->params([
+        'product_code' => 'new-product',
+        'product_name' => 'New Product',
+    ])
+    ->add();
+
+// Example: Update Product Inventory
+$api->func('Product_Update')
+    ->params([
+        'product_code'      => 'new-product',
+        'product_inventory' => 250,
+    ])
+    ->add();
+
+// Example: Load An Order Queue
+$api->func('Module')
+    ->params([
+        'Module_Code'     => 'orderworkflow',
+        'Module_Function' => 'QueueOrderList_Load_Query',
+        'Queue_Code'      => 'new_updated_orders',
+    ])
+    ->add();
+
+// Example: Acknowledge An Order
+$api->func('Module')
+    ->params([
+        'Module_Code'     => 'orderworkflow',
+        'Module_Function' => 'OrderList_Acknowledge',
+        'Order_Ids'       => [1000, 10001, 10002],
+    ])
+    ->add();
+
+// Example: Create A Shipment
+$api->func('OrderItemList_CreateShipment')
+    ->params([
+        'Order_Id' => '200103',
+        'line_ids' => [100, 101],
+    ])
+    ->add();
+
+// Example: Update Shipments
+$api->func('OrderShipmentList_Update')
+    ->params([
+        'Shipment_Updates' => [
+            [
+                'shpmnt_id'    => 1,
+                'mark_shipped' => true,
+                'tracknum'     => '1234567890',
+                'tracktype'    => 'UPS',
+                'cost'         => 5,
+            ], [
+                'shpmnt_id'    => 2,
+                'mark_shipped' => true,
+                'tracknum'     => '0987654321',
+                'tracktype'    => 'USPS',
+            ],
+        ],
+    ])
     ->add();
 ```
 
-### API Requests
+## API Requests
 
 This section covers configuring and issuing Api requests.
 
-#### HTTP Headers
+### HTTP Headers
 
 You may specify which HTTP headers are attached to all Api requests with the `addHeader` and `addHeaders` methods. Please note that the library automatically creates and attaches the `Content-Type: application/json` and `X-Miva-API-Authorization` headers to each Api request.
 
@@ -254,7 +339,7 @@ $api->addHeaders([
 ]);
 ```
 
-#### Sending Requests
+### Sending Requests
 
 The `send` method will issue an Api request, and return the results in the library's `Response` object. If you wish to bypass this object and return the raw JSON response from the Api, pass a `true` value as the first argument for the `send` method.
 
@@ -286,11 +371,11 @@ You may preview the current request body at any time before sending the request 
 echo '<pre>', $api->getRequestBody(), '</pre>';
 ```
 
-#### API Responses
+### API Responses
 
 By default, Api responses will return a `pdeans\Miva\Api\Response` class instance. The `Response` object hosts a number of helper methods for interacting with the Api responses.
 
-**Checking For Request Errors**
+##### Checking For Request Errors
 
 Checking for errors that may have occurred on the Api request can be accomplished with the `getErrors` method. This method will return a `stdClass` object containing the error code and error message thrown. The `isSuccess` method can be used as a flag to determine if a request error occurred:
 
@@ -303,7 +388,7 @@ if (!$response->isSuccess()) {
 }
 ```
 
-**Response Body**
+##### Response Body
 
 The raw JSON response body can be retrieved anytime using the `getBody` method:
 
@@ -342,11 +427,11 @@ var_dump($response->getFunction('ProductList_Load_Query'));
 var_dump($response->getResponse('OrderCustomFieldList_Load'));
 ```
 
-### Helpers
+## Helpers
 
 This section covers library helper methods.
 
-#### Troubleshooting Api Requests And Responses
+### Troubleshooting Api Requests And Responses
 
 To aid in troubleshooting Api requests and responses, [PSR-7 Request](http://www.php-fig.org/psr/psr-7/) and [Response](http://www.php-fig.org/psr/psr-7/) objects can be obtained using the `getLastRequest` and `getLastResponse` methods respectively after an Api request has been issued:
 
