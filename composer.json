@@ -15,9 +15,6 @@
 		"pdeans/http": "^1.1",
 		"tightenco/collect": "^5.7"
 	},
-	"require-dev": {
-		"pdeans/debuggers-vardumper": "^1.0"
-	},
 	"autoload": {
 		"psr-4": {
 			"pdeans\\Miva\\Api\\": "src"
