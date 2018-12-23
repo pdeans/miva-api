@@ -18,7 +18,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"pdeans\\Miva\\Api\\": "src"
+			"pdeans\\Miva\\Api\\": "src/"
 		}
 	}
 }

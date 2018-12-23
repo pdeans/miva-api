@@ -1,3 +1,10 @@
+<!--
+  Title: Miva JSON Api PHP Library
+  Description: PHP library for interacting with the Miva JSON API.
+  Keywords: Miva, Merchant, json, api
+  Author: pdeans
+  -->
+
 # Miva JSON Api PHP Library
 
 PHP library for interacting with the Miva JSON API.
@@ -251,7 +258,7 @@ $api->func('OrderList_Load_Query')
 
 ##### Additional Input Parameters
 
-The `params` method is used to set all other input parameters. Some example use cases for this method are the request body parameters for the `Xx_Create` / `Xx_Insert` / `Xx_Update` / `Xx_Delete` functions, `Module` level functions, and essentially any other functions that require input to perform actions. The function accepts a key/value array which maps to the input parameter key/values as its only argument.
+The `params` method is used to set all other input parameters. Some example use cases for this method are the request body parameters for the `Xx_Create` / `Xx_Insert` / `Xx_Update` / `Xx_Delete` functions, `Module` level functions, and essentially all other functions that require specific input parameters to perform actions. The function accepts a key/value array which maps to the input parameter key/values as its only argument.
 
 Examples:
 
