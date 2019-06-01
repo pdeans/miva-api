@@ -11,10 +11,9 @@
 		}
 	],
 	"require": {
-		"php": "^7.1.3",
+		"php": "^7.0",
 		"ext-json": "*",
-		"pdeans/http": "^1.1",
-		"tightenco/collect": "^5.7"
+		"pdeans/http": "1.*"
 	},
 	"autoload": {
 		"psr-4": {
