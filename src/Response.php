@@ -5,7 +5,6 @@ namespace pdeans\Miva\Api;
 use pdeans\Miva\Api\Exceptions\InvalidValueException;
 use pdeans\Miva\Api\Exceptions\JsonSerializeException;
 use stdClass;
-use Tightenco\Collect\Support\Collection;
 
 /**
  * API Response class
@@ -92,7 +91,7 @@ class Response
      *
      * @param string $function_name  The function name
      *
-     * @return \Tightenco\Collect\Support\Collection
+     * @return array
      */
     public function getFunction(string $function_name)
     {
@@ -144,7 +143,7 @@ class Response
             $this->success = (bool)$resp->success;
 
             if ($this->success) {
-                $functions = [$this->functions_list[0] => new Collection($resp)];
+                $functions = [$this->functions_list[0] => [$resp]];
             } else {
                 $this->errors->success = $this->success;
                 $this->errors->code    = (string)$resp->error_code;
@@ -161,10 +160,6 @@ class Response
                 } elseif (is_object($results)) {
                     $functions[$function_name][] = $results;
                 }
-
-                if (!empty($functions[$function_name])) {
-                    $functions[$function_name] = new Collection($functions[$function_name]);
-                }
             }
         }
 
@@ -172,6 +167,6 @@ class Response
             $this->success = true;
         }
 
-        $this->functions = new Collection($functions);
+        $this->functions = $functions;
     }
 }
