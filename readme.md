@@ -405,7 +405,7 @@ $response = $api->func('ProductList_Load_Query')->add()->send();
 echo '<pre>', $response->getBody(), '</pre>';
 ```
 
-To receive an iterable form of the Api response, issue the `getResponse` method. This will return a Laravel style `Collection` object, with the collection items mapping to the function names supplied to the Api request function list. The items are sorted in identical order to the Api request function list. Each collection item or "function", contains its own `Collection` instance. These collection items correlate to each of the function's iterations that were sent in the request. The items are sorted in the same order that they were issued in the request. Refer to the list of [available methods](https://laravel.com/docs/5.7/collections#method-listing), as well as the `Collection` class [documentation](https://laravel.com/docs/5.7/collections) to see all of the handy and powerful features that collections offer.
+To receive an iterable form of the Api response, issue the `getResponse` method. This will return an array of objects, with the array keys mapping to the function names supplied to the Api request function list. The items are sorted in identical order to the Api request function list. Each item or "function", contains its own array of the results of the function request. These array items correlate to each of the function's iterations that were sent in the request. The items are sorted in the same order that they were issued in the request.
 
 The `getFunction` method may be used to explicitly return the response results for a specific function name. This can also be accomplished with the `getResponse` method by passing the function name as the first argument.
 
