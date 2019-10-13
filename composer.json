@@ -11,9 +11,9 @@
 		}
 	],
 	"require": {
-		"php": "^7.0",
+		"php": "^7.1",
 		"ext-json": "*",
-		"pdeans/http": "1.*"
+		"pdeans/http": "^1.1"
 	},
 	"autoload": {
 		"psr-4": {
