@@ -29,9 +29,9 @@ PHP library for interacting with the Miva JSON API.
 - [API Requests](#api-requests)
     * [HTTP Headers](#http-headers)
     * [Sending Requests](#sending-requests)
-    * [API Responses](#api-responses)
-        - [Checking For Request Errors](#checking-for-request-errors)
-        - [Response Body](#response-body)
+- [API Responses](#api-responses)
+    - [Checking For Request Errors](#checking-for-request-errors)
+    - [Response Body](#response-body)
 - [Helpers](#helpers)
     * [Troubleshooting Api Requests And Responses](#troubleshooting-api-requests-and-responses)
     * [Further Reading](#further-reading)
@@ -71,6 +71,21 @@ $api = new Manager([
     'store_code'   => 'PS',
     'access_token' => '0f90f77b58ca98836eba3d50f526f523',
     'private_key'  => '12345privatekey',
+]);
+
+// Example with Basic Authentication header and curl options
+$api = new Manager([
+    'url'          => 'https://www.domain.com/mm5/json.mvc',
+    'store_code'   => 'PS',
+    'access_token' => '0f90f77b58ca98836eba3d50f526f523',
+    'private_key'  => '12345privatekey',
+    'http_headers' => [
+        'Authorization' => 'Basic '.base64_encode('username:password'),
+    ],
+    'http_client' => [
+        CURLOPT_SSL_VERIFYPEER => 0,
+        CURLOPT_SSL_VERIFYHOST => 0,
+    ],
 ]);
 ```
 
@@ -384,7 +399,7 @@ By default, Api responses will return a `pdeans\Miva\Api\Response` class instanc
 
 ##### Checking For Request Errors
 
-Checking for errors that may have occurred on the Api request can be accomplished with the `getErrors` method. This method will return a `stdClass` object containing the error code and error message thrown. The `isSuccess` method can be used as a flag to determine if a request error occurred:
+Checking for errors that may have occurred on the Api request can be accomplished with the `getErrors` method. This method will return a `stdClass` object containing the error code and error message thrown. The `isSuccess` method returns a boolean value which can be used as a flag to determine if a request error occurred:
 
 ```php
 $response = $api->func('ProductList_Load_Query')->add()->send();
@@ -405,9 +420,11 @@ $response = $api->func('ProductList_Load_Query')->add()->send();
 echo '<pre>', $response->getBody(), '</pre>';
 ```
 
-To receive an iterable form of the Api response, issue the `getResponse` method. This will return an array of objects, with the array keys mapping to the function names supplied to the Api request function list. The items are sorted in identical order to the Api request function list. Each item or "function", contains its own array of the results of the function request. These array items correlate to each of the function's iterations that were sent in the request. The items are sorted in the same order that they were issued in the request.
+To receive an iterable form of the Api response, issue the `getResponse` method. This will return an array of objects, with the array keys mapping to the function names supplied to the Api request function list. The items are sorted in identical order to the Api request function list. Each item or "function", contains its own array of the results of the function request. These array items correlate to each of the function's iterations that were sent in the request. The items are sorted in the same order that they were issued in the request. Use the `getFunctionsList` to retrieve the list of available functions.
 
 The `getFunction` method may be used to explicitly return the response results for a specific function name. This can also be accomplished with the `getResponse` method by passing the function name as the first argument.
+
+The `getData` method returns the response `data` property for a specific function name. By default, the `data` property is returned for the first iteration index for the function name provided. However, an optional second argument can be provided to return the `data` property for a specific iteration index on the given function name.
 
 Examples:
 
@@ -429,9 +446,30 @@ foreach ($results as $result) {
     var_dump($result);
 }
 
+// Return list of available functions
+var_dump($response->getFunctionsList());
+
 // Isolate and return responses for specific function
 var_dump($response->getFunction('ProductList_Load_Query'));
 var_dump($response->getResponse('OrderCustomFieldList_Load'));
+
+// Add functions to request function list
+$api->func('ProductList_Load_Query')->add();
+$api->func('ProductList_Load_Query')->count(5)->add();
+$api->func('ProductList_Load_Query')->count(10)->add();
+$response = $api->send();
+
+/**
+ * Get the response "data" property for specific function.
+ * Defaults to the first iteration index result for the given function.
+ */
+var_dump($response->getData('ProductList_Load_Query'));
+/**
+ * Use the optional second parameter to return the "data" property for
+ * a specific iteration index. The example below will return the "data"
+ * property for the 3rd iteration result on the given function.
+ */
+var_dump($response->getData('ProductList_Load_Query', 2));
 ```
 
 ## Helpers
