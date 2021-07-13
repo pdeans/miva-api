@@ -80,7 +80,9 @@ $api = new Manager([
     'access_token' => '0f90f77b58ca98836eba3d50f526f523',
     'private_key'  => '12345privatekey',
     'http_headers' => [
-        'Authorization' => 'Basic '.base64_encode('username:password'),
+        'Authorization' => 'Basic ' . base64_encode('username:password'),
+        'Connection'    => 'close',
+        'Cache-Control' => 'no-cache',
     ],
     'http_client' => [
         CURLOPT_SSL_VERIFYPEER => 0,
