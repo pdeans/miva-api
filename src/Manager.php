@@ -324,7 +324,7 @@ class Manager
      */
     public function __call($method, $arguments)
     {
-        if (is_callable([FunctionBuilder::class, $method])) {
+        if (class_exists(FunctionBuilder::class) && in_array($method, get_class_methods(FunctionBuilder::class))) {
             $this->request->function->{$method}(...$arguments);
 
             return $this;
