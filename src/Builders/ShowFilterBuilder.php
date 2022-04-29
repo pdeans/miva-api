@@ -118,7 +118,7 @@ class ShowFilterBuilder extends FilterBuilder
      *
      * @return string
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): string
     {
         return $this->show_value;
     }
