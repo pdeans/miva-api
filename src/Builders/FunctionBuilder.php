@@ -176,7 +176,7 @@ class FunctionBuilder implements BuilderInterface
      *
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $function = [];
 

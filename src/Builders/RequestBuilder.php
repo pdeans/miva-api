@@ -84,7 +84,7 @@ class RequestBuilder implements BuilderInterface
      *
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         if (empty($this->function_list)) {
             throw new MissingRequiredValueException('Function list cannot be empty.');
