@@ -53,7 +53,7 @@ class RequestBuilder implements BuilderInterface
 
         $this->function      = null;
         $this->function_list = [];
-        $this->storeCode     = $store_code;
+        $this->store_code    = $store_code;
         $this->timestamp     = $timestamp;
     }
 
@@ -90,7 +90,7 @@ class RequestBuilder implements BuilderInterface
             throw new MissingRequiredValueException('Function list cannot be empty.');
         }
 
-        $request = ['Store_Code' => $this->storeCode];
+        $request = ['Store_Code' => $this->store_code];
 
         if ($this->timestamp) {
             $request['Miva_Request_Timestamp'] = time();
