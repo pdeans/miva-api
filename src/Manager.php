@@ -24,7 +24,7 @@ class Manager
      */
     protected $auth;
 
-    /**s
+    /**
      * Http headers
      *
      * @var array
