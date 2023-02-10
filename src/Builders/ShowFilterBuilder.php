@@ -45,13 +45,13 @@ class ShowFilterBuilder extends FilterBuilder
         $this->function_name = strtolower($function_name);
 
         if (!$this->isValidFunctionName($this->function_name)) {
-            throw new InvalidValueException('Show filter is not supported for function "'.$function_name.'".');
+            throw new InvalidValueException('Show filter is not supported for function "' . $function_name . '".');
         }
 
         $this->show_value = ucfirst($show_value);
 
         if (!$this->isValidShowValue($this->show_value)) {
-            throw new InvalidValueException('Invalid value "'.$show.'" provided to show filter.');
+            throw new InvalidValueException('Invalid value "' . $show_value . '" provided to show filter.');
         }
     }
 
@@ -70,7 +70,7 @@ class ShowFilterBuilder extends FilterBuilder
                 return 'Product_Show';
         }
 
-        throw new InvalidValueException('Show filter not found for function "'.$this->function_name.'".');
+        throw new InvalidValueException('Show filter not found for function "' . $this->function_name . '".');
     }
 
     /**
@@ -116,9 +116,9 @@ class ShowFilterBuilder extends FilterBuilder
     /**
      * Specify JSON serialization format
      *
-     * @return string
+     * @return mixed
      */
-    public function jsonSerialize(): string
+    public function jsonSerialize(): mixed
     {
         return $this->show_value;
     }

@@ -76,7 +76,7 @@ class FilterBuilder implements BuilderInterface
         $name = strtolower($this->name);
 
         if ($name === 'search') {
-            $validateSearch = function($search) {
+            $validateSearch = function ($search) {
                 if (!isset($search['field'])) {
                     throw new MissingRequiredValueException('Missing required filter property "field".');
                 } elseif (!isset($search['operator'])) {

@@ -98,7 +98,7 @@ class RequestBuilder implements BuilderInterface
 
         // Handy dandy function to auto-magically set parameter fields for
         // single function calls
-        $setSingleFuncParams = function($function_obj) {
+        $setSingleFuncParams = function ($function_obj) {
             $params = [];
 
             foreach ($this->function->getCommonparameterList() as $parameter) {
@@ -109,7 +109,7 @@ class RequestBuilder implements BuilderInterface
 
             if (!empty($function_obj->parameter_list)) {
                 foreach ($function_obj->parameter_list as $name => $value) {
-                   $params[$this->function->formatParameterName($name)] = $value;
+                    $params[$this->function->formatParameterName($name)] = $value;
                 }
             }
 
@@ -132,7 +132,6 @@ class RequestBuilder implements BuilderInterface
             } elseif ($function_count > 1) {
                 $request['Iterations'] = $functions;
             }
-
         } elseif (count($this->function_list) > 1) {
             $function_operations = [];
 

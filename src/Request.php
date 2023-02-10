@@ -64,7 +64,7 @@ class Request
     {
         $this->request      = $request;
         $this->client       = new Client($client_opts);
-        $this->msg_factory  = new MessageFactory;
+        $this->msg_factory  = new MessageFactory();
         $this->headers      = ['Content-Type' => 'application/json'];
         $this->body         = null;
         $this->last_request = null;
