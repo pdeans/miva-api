@@ -2,6 +2,7 @@
 
 namespace pdeans\Miva\Api\Exceptions;
 
+use Exception;
 use LogicException;
 use pdeans\Miva\Api\Contracts\ExceptionInterface;
 

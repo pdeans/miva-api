@@ -62,7 +62,7 @@ class Response
 
         $this->functions_list = $request_function_list;
         $this->body           = $response_body;
-        $this->errors         = new stdClass;
+        $this->errors         = new stdClass();
         $this->functions      = [];
 
         $this->parseResponseBody($response_body);
@@ -91,7 +91,9 @@ class Response
         if (!$this->isValidFunction($function_name)) {
             $this->throwInvalidFunctionError($function_name);
         } elseif (!isset($this->functions[$function_name][$index])) {
-            throw new InvalidValueException('Index "'.$index.'" does not exist for function "'.$function_name.'".');
+            throw new InvalidValueException(
+                'Index "' . $index . '" does not exist for function "' . $function_name . '".'
+            );
         }
 
         $function_data = $this->functions[$function_name][$index];
@@ -230,6 +232,6 @@ class Response
      */
     protected function throwInvalidFunctionError(string $function_name)
     {
-        throw new InvalidValueException('Function name "'.$function_name.'" invalid or missing from results list.');
+        throw new InvalidValueException('Function name "' . $function_name . '" invalid or missing from results list.');
     }
 }

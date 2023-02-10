@@ -7,4 +7,6 @@ use JsonSerializable;
 /**
  * Builder Interface
  */
-interface BuilderInterface extends JsonSerializable {}
+interface BuilderInterface extends JsonSerializable
+{
+}

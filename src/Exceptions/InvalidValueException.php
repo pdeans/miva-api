@@ -5,4 +5,6 @@ namespace pdeans\Miva\Api\Exceptions;
 /**
  * InvalidValueException class
  */
-class InvalidValueException extends BaseException {}
+class InvalidValueException extends BaseException
+{
+}

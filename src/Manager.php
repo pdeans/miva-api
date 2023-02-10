@@ -5,7 +5,6 @@ namespace pdeans\Miva\Api;
 use pdeans\Miva\Api\Builders\FunctionBuilder;
 use pdeans\Miva\Api\Builders\RequestBuilder;
 use pdeans\Miva\Api\Exceptions\InvalidMethodCallException;
-use pdeans\Miva\Api\Exceptions\InvalidValueException;
 use pdeans\Miva\Api\Exceptions\MissingRequiredValueException;
 use pdeans\Miva\Api\Request as ApiRequest;
 use pdeans\Miva\Api\Response as ApiResponse;
@@ -21,7 +20,7 @@ class Manager
     /**
      * Api Auth
      *
-     * @var \pdeans\Miva\ApiAuth
+     * @var \pdeans\Miva\Api\Auth
      */
     protected $auth;
 
@@ -330,6 +329,6 @@ class Manager
             return $this;
         }
 
-        throw new InvalidMethodCallException('Bad method call "'.$method.'".');
+        throw new InvalidMethodCallException('Bad method call "' . $method . '".');
     }
 }

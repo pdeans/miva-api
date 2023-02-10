@@ -70,7 +70,7 @@ class FunctionBuilder implements BuilderInterface
     public function __construct(string $name)
     {
         if (trim($name) === '') {
-            throw new MissingRequiredValueException('Invalid function name "'.$name.'" provided.');
+            throw new MissingRequiredValueException('Invalid function name "' . $name . '" provided.');
         }
 
         $this->name           = $name;
@@ -107,7 +107,7 @@ class FunctionBuilder implements BuilderInterface
     public function filter(string $filter_name, $filter_value)
     {
         if (trim($filter_name) === '') {
-            throw new InvalidValueException('Invalid value "'.$filter_name.'" provided for filter name.');
+            throw new InvalidValueException('Invalid value "' . $filter_name . '" provided for filter name.');
         }
 
         $this->filter_list[] = (new FilterBuilder($filter_name, $filter_value))->addFilter();
@@ -188,7 +188,7 @@ class FunctionBuilder implements BuilderInterface
 
         if (!empty($this->parameter_list)) {
             foreach ($this->parameter_list as $name => $value) {
-               $function[$this->formatParameterName($name)] = $value;
+                $function[$this->formatParameterName($name)] = $value;
             }
         }
 
@@ -281,12 +281,12 @@ class FunctionBuilder implements BuilderInterface
         $args_count = count($args);
 
         if ($args_count < 1 || $args_count > 3) {
-            throw new InvalidValueException('Invalid arguments supplied for "'.__METHOD__.'".');
+            throw new InvalidValueException('Invalid arguments supplied for "' . __METHOD__ . '".');
         }
 
         if ($args_count === 1) {
             if (!is_array($args[0]) || empty($args[0])) {
-                throw new InvalidValueException('Invalid arguments supplied for "'.__METHOD__.'".');
+                throw new InvalidValueException('Invalid arguments supplied for "' . __METHOD__ . '".');
             }
 
             $this->filter('search', $args[0]);
@@ -342,7 +342,7 @@ class FunctionBuilder implements BuilderInterface
      */
     public function sortDesc(string $sort_column)
     {
-        $this->sort = '-'.strtolower(str_replace('-', '', $sort_column));
+        $this->sort = '-' . strtolower(str_replace('-', '', $sort_column));
 
         return $this;
     }

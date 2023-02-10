@@ -31,9 +31,9 @@ class GenericFilterBuilder extends FilterBuilder
     /**
      * Specify JSON serialization format
      *
-     * @return string
+     * @return mixed
      */
-    public function jsonSerialize(): string
+    public function jsonSerialize(): mixed
     {
         return $this->value;
     }

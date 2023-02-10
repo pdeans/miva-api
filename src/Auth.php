@@ -2,8 +2,7 @@
 
 namespace pdeans\Miva\Api;
 
-use pdeans\Miva\Api\Exceptions\InvalidValueExcepion;
-use pdeans\Miva\Api\Exceptions\MissingRequiredValueException;
+use pdeans\Miva\Api\Exceptions\InvalidValueException;
 
 /**
  * API Auth class
@@ -160,7 +159,7 @@ final class Auth
             $hmac_type_formatted = strtolower($hmac_type);
 
             if (!in_array($hmac_type_formatted, $this->hmac_list)) {
-                throw new InvalidValueExcepion(
+                throw new InvalidValueException(
                     sprintf(
                         'Invalid HMAC type "%s" provided. Valid HMAC types: "%s".',
                         $hmac_type,
