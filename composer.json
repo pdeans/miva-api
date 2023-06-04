@@ -1,23 +1,25 @@
 {
-	"name": "pdeans/miva-api",
-	"type": "library",
-	"description": "PHP library for interacting with the Miva JSON API.",
-	"license": "MIT",
-	"keywords": ["Miva", "Merchant", "json", "api"],
-	"authors": [
-		{
-			"name": "Patrick Stearns",
-			"email": "pdeans1986@gmail.com"
-		}
-	],
-	"require": {
-		"php": "^7.1 || ^8.0",
-		"ext-json": "*",
-		"pdeans/http": "^1.1"
-	},
-	"autoload": {
-		"psr-4": {
-			"pdeans\\Miva\\Api\\": "src/"
-		}
-	}
+    "name": "pdeans/miva-api",
+    "type": "library",
+    "description": "PHP library for interacting with the Miva JSON API.",
+    "license": "MIT",
+    "keywords": ["Miva", "Merchant", "json", "api"],
+    "authors": [
+        {
+            "name": "Patrick Stearns",
+            "email": "pdeans1986@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "ext-json": "*",
+        "pdeans/http": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "pdeans\\Miva\\Api\\": "src/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }
