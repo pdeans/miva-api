@@ -44,6 +44,8 @@ class FilterBuilder implements BuilderInterface
 
     /**
      * Create a new filter builder instance.
+     *
+     * @throws \pdeans\Miva\Api\Exceptions\InvalidValueException
      */
     public function __construct(string $name, mixed $value, string|null $functionName = null)
     {
