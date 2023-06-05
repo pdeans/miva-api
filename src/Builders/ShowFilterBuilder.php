@@ -10,59 +10,58 @@ use pdeans\Miva\Api\Exceptions\InvalidValueException;
 class ShowFilterBuilder extends FilterBuilder
 {
     /**
-     * API function name
+     * API function name.
      *
      * @var string
      */
-    protected $function_name;
+    protected string $functionName;
 
     /**
-     * List of valid API function names
+     * List of valid API function names.
      *
      * @var array
      */
-    protected static $FUNCTION_NAMES = [
+    protected static array $FUNCTION_NAMES = [
         'categorylist_load_query',
         'categoryproductlist_load_query',
         'productlist_load_query',
     ];
 
     /**
-     * Show filter value
+     * Show filter value.
      *
      * @var string
      */
-    public $show_value;
+    public string $showValue;
 
     /**
-     * Construct ProductShowFilterBuilder object
+     * Create a new show filter builder instance.
      *
-     * @param string $function_name The API function name
-     * @param string $show_value    The show filter value
+     * @throws \pdeans\Miva\Api\Exceptions\InvalidValueException
      */
-    public function __construct(string $function_name, string $show_value)
+    public function __construct(string $functionName, string $showValue)
     {
-        $this->function_name = strtolower($function_name);
+        $this->functionName = strtolower($functionName);
 
-        if (!$this->isValidFunctionName($this->function_name)) {
-            throw new InvalidValueException('Show filter is not supported for function "' . $function_name . '".');
+        if (!$this->isValidFunctionName($this->functionName)) {
+            throw new InvalidValueException('Show filter is not supported for function "' . $functionName . '".');
         }
 
-        $this->show_value = ucfirst($show_value);
+        $this->showValue = ucfirst($showValue);
 
-        if (!$this->isValidShowValue($this->show_value)) {
-            throw new InvalidValueException('Invalid value "' . $show_value . '" provided to show filter.');
+        if (!$this->isValidShowValue($this->showValue)) {
+            throw new InvalidValueException('Invalid value "' . $showValue . '" provided to show filter.');
         }
     }
 
     /**
-     * Get the show filter name
+     * Get the show filter name.
      *
-     * @return string
+     * @throws \pdeans\Miva\Api\Exceptions\InvalidValueException
      */
-    public function getFilterName()
+    public function getFilterName(): string
     {
-        switch (strtolower($this->function_name)) {
+        switch (strtolower($this->functionName)) {
             case 'categorylist_load_query':
                 return 'Category_Show';
             case 'categoryproductlist_load_query':
@@ -70,56 +69,46 @@ class ShowFilterBuilder extends FilterBuilder
                 return 'Product_Show';
         }
 
-        throw new InvalidValueException('Show filter not found for function "' . $this->function_name . '".');
+        throw new InvalidValueException('Show filter not found for function "' . $this->functionName . '".');
     }
 
     /**
-     * Determine if function name is valid for show filter
-     *
-     * @param string $function_name
-     *
-     * @return boolean
+     * Determine if a function name is valid for the show filter.
      */
-    protected function isValidFunctionName(string $function_name)
+    protected function isValidFunctionName(string $functionName): bool
     {
-        return (in_array(strtolower($function_name), self::$FUNCTION_NAMES));
+        return (in_array(strtolower($functionName), self::$FUNCTION_NAMES));
     }
 
     /**
-     * Determine if show filter value is valid
-     *
-     * @param string $show_value
-     *
-     * @return boolean
+     * Determine if a show filter value is valid.
      */
-    protected function isValidShowValue(string $show_value)
+    protected function isValidShowValue(string $showValue): bool
     {
-        $show_values = [];
+        $showValues = [];
 
-        switch (strtolower($this->function_name)) {
+        switch (strtolower($this->functionName)) {
             case 'categorylist_load_query':
-                $show_values = ['Active', 'All'];
+                $showValues = ['active', 'all'];
                 break;
             case 'categoryproductlist_load_query':
             case 'productlist_load_query':
-                $show_values = ['Active', 'All', 'Uncategorized'];
+                $showValues = ['active', 'all', 'uncategorized'];
                 break;
         }
 
-        if (empty($show_values)) {
+        if (empty($showValues)) {
             return false;
         }
 
-        return in_array(ucfirst($show_value), $show_values);
+        return in_array(strtolower($showValue), $showValues);
     }
 
     /**
-     * Specify JSON serialization format
-     *
-     * @return mixed
+     * Define JSON serialization format.
      */
-    public function jsonSerialize(): mixed
+    public function jsonSerialize(): string
     {
-        return $this->show_value;
+        return $this->showValue;
     }
 }
