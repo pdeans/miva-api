@@ -63,7 +63,7 @@ final class Auth
         $this->setHmacType($hmacType);
 
         $this->authHeaderName = 'X-Miva-API-Authorization';
-        $this->hmacSignature = null;
+        $this->hmacSignature = '';
     }
 
     /**

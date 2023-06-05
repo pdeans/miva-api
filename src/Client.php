@@ -33,9 +33,9 @@ class Client
     /**
      * PSR-7 Request instance.
      *
-     * @var \pdeans\Http\Request
+     * @var \pdeans\Http\Request|null
      */
-    protected Request $lastRequest;
+    protected Request|null $lastRequest;
 
     /**
      * PSR-7 Response instance.
