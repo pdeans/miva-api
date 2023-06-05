@@ -61,9 +61,9 @@ class SearchFilterBuilder extends FilterBuilder
     /**
      * Filter search value.
      *
-     * @var string|null
+     * @var mixed
      */
-    public string|null $value;
+    public mixed $value;
 
     /**
      * Create a new search filter builder instance.
