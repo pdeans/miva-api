@@ -3,12 +3,11 @@
 namespace pdeans\Miva\Api\Exceptions;
 
 use Exception;
-use pdeans\Miva\Api\Contracts\ExceptionInterface;
 
 /**
  * BaseException class
  */
-class BaseException extends Exception implements ExceptionInterface
+class BaseException extends Exception
 {
     /**
      * Construct BaseException object

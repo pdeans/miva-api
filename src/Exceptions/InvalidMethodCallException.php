@@ -4,12 +4,11 @@ namespace pdeans\Miva\Api\Exceptions;
 
 use BadMethodCallException;
 use Exception;
-use pdeans\Miva\Api\Contracts\ExceptionInterface;
 
 /**
  * InvalidMethodCallException class
  */
-class InvalidMethodCallException extends BadMethodCallException implements ExceptionInterface
+class InvalidMethodCallException extends BadMethodCallException
 {
     /**
      * Construct InvalidMethodCallException object

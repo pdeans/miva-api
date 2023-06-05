@@ -3,13 +3,12 @@
 namespace pdeans\Miva\Api\Exceptions;
 
 use Exception;
-use pdeans\Miva\Api\Contracts\ExceptionInterface;
 use RuntimeException;
 
 /**
  * JsonSerializeException class
  */
-class JsonSerializeException extends RuntimeException implements ExceptionInterface
+class JsonSerializeException extends RuntimeException
 {
     /**
      * Construct JsonSerializeException object

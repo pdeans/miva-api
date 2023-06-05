@@ -4,12 +4,11 @@ namespace pdeans\Miva\Api\Exceptions;
 
 use Exception;
 use LogicException;
-use pdeans\Miva\Api\Contracts\ExceptionInterface;
 
 /**
  * MissingRequiredValueException class
  */
-class MissingRequiredValueException extends LogicException implements ExceptionInterface
+class MissingRequiredValueException extends LogicException
 {
     /**
      * Construct MissingRequiredValueException object

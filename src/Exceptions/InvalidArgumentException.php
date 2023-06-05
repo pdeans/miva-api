@@ -4,12 +4,11 @@ namespace pdeans\Miva\Api\Exceptions;
 
 use Exception;
 use InvalidArgumentException as SPLInvalidArgumentException;
-use pdeans\Miva\Api\Contracts\ExceptionInterface;
 
 /**
  * InvalidArgumentException class
  */
-class InvalidArgumentException extends SPLInvalidArgumentException implements ExceptionInterface
+class InvalidArgumentException extends SPLInvalidArgumentException
 {
     /**
      * Construct InvalidArgumentException object
