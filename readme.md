@@ -12,8 +12,8 @@ PHP library for interacting with the Miva JSON API.
 ### Table Of Contents
 
 - [Installation](#installation)
-- [Configuring the Api Manager](#configuring-the-api-manager)
-    * [Manager Configuration Options](#manager-configuration-options)
+- [Configuring the Api Client](#configuring-the-api-client)
+    * [Client Configuration Options](#client-configuration-options)
 - [Authentication](#authentication)
 - [JSON Request Format](#json-request-format)
 - [Function Builder](#function-builder)
@@ -44,11 +44,11 @@ Install via [Composer](https://getcomposer.org/).
 $ composer require pdeans/miva-api
 ```
 
-## Configuring the Api Manager
+## Configuring the Api Client
 
-Utilizing the library to interact with the Api is accomplished via the `Manager` class. The `Manager` class accepts an array containing Api and HTTP client (cURL) configuration options in key/value format.
+Utilizing the library to interact with the Api is accomplished via the `Client` class. The `Client` class accepts an array containing Api and HTTP client (cURL) configuration options in key/value format.
 
-### Manager Configuration Options
+### Client Configuration Options
 
 Key | Required | Type | Description
 ----|:--------:|:----:|------------
@@ -64,9 +64,9 @@ http_client | No | array | Associative array of [curl options](http://php.net/cu
 Example:
 
 ```php
-use pdeans\Miva\Api\Manager;
+use pdeans\Miva\Api\Client;
 
-$api = new Manager([
+$api = new Client([
     'url'          => 'https://www.domain.com/mm5/json.mvc',
     'store_code'   => 'PS',
     'access_token' => '0f90f77b58ca98836eba3d50f526f523',
@@ -74,7 +74,7 @@ $api = new Manager([
 ]);
 
 // Example with Basic Authentication header and curl options
-$api = new Manager([
+$api = new Client([
     'url'          => 'https://www.domain.com/mm5/json.mvc',
     'store_code'   => 'PS',
     'access_token' => '0f90f77b58ca98836eba3d50f526f523',
@@ -93,11 +93,11 @@ $api = new Manager([
 
 ## Authentication
 
-The Miva Api authorization header will be automatically generated based on the configuration settings passed into the `Manager` object and sent along with each Api request. The configuration settings should match the Miva store settings for the given Api token.
+The Miva Api authorization header will be automatically generated based on the configuration settings passed into the `Client` object and sent along with each Api request. The configuration settings should match the Miva store settings for the given Api token.
 
 ## JSON Request Format
 
-The required `Miva_Request_Timestamp` and `Store_Code` properties are automatically generated based on the configuration settings passed into the `Manager` object and added to the JSON body for every Api request. The `Function` property is also automatically added to the JSON body for every request. The JSON data generated for the `Function` property will vary based on the provided request function list.
+The required `Miva_Request_Timestamp` and `Store_Code` properties are automatically generated based on the configuration settings passed into the `Client` object and added to the JSON body for every Api request. The `Function` property is also automatically added to the JSON body for every request. The JSON data generated for the `Function` property will vary based on the provided request function list.
 
 ## Function Builder
 
@@ -134,7 +134,7 @@ $api->func('OrderList_Load_Query')
 
 Most of the function search/display filters have an associated helper method that acts as a shorthand, or factory for creating the respective filter. The `filter` method must be used for any filter that does not have a linked helper method, as shown in the example above. This method can also be used to create each filter covered below. The method accepts two arguments, with the first argument always being the filter name. The second argument takes the filter value, which will vary per filter type.
 
-The available search/display helper methods are covered below. 
+The available search/display helper methods are covered below.
 
 ##### Search
 
@@ -166,7 +166,7 @@ $api->func('ProductList_Load_Query')
 $api->func('ProductList_Load_Query')
     ->search('price', 'GE', 2.20)
     ->add();
-    
+
 $api->func('ProductList_Load_Query')
     ->search('Category', 'IN', '13707,13708')
     ->add();
