@@ -100,7 +100,7 @@ class RequestBuilder implements BuilderInterface
             $request['Function'] = $functionName;
 
             if ($functionCount === 1) {
-                $request = array_merge($request, (array) $functions[0]);
+                $request = array_merge($request, $functions[0]->getRequestParameters());
             } elseif ($functionCount > 1) {
                 $request['Iterations'] = $functions;
             }
@@ -112,7 +112,7 @@ class RequestBuilder implements BuilderInterface
                 $operation = ['Function' => $functionName];
 
                 if ($functionCount === 1) {
-                    $operation = array_merge($operation, (array) $functions[0]);
+                    $operation = array_merge($operation, $functions[0]->getRequestParameters());
                 } elseif ($functionCount > 1) {
                     $operation['Iterations'] = $functions;
                 }

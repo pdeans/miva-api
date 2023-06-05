@@ -153,9 +153,9 @@ class FunctionBuilder implements BuilderInterface
     }
 
     /**
-     * Define the JSON serialization format.
+     * Get the request parameters.
      */
-    public function jsonSerialize(): array
+    public function getRequestParameters(): array
     {
         $function = [];
 
@@ -176,6 +176,14 @@ class FunctionBuilder implements BuilderInterface
         }
 
         return $function;
+    }
+
+    /**
+     * Define the JSON serialization format.
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->getRequestParameters();
     }
 
     /**
