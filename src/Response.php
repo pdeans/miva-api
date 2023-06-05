@@ -146,7 +146,7 @@ class Response
      */
     public function getResponse($function_name = null)
     {
-        if ($function_name !== null) {
+        if (! is_null($function_name)) {
             return $this->getFunction($function_name);
         }
 
@@ -216,7 +216,7 @@ class Response
             }
         }
 
-        if ($this->success === null && empty(get_object_vars($this->errors))) {
+        if (is_null($this->success) && empty(get_object_vars($this->errors))) {
             $this->success = true;
         }
 

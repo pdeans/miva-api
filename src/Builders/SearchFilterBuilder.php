@@ -86,7 +86,7 @@ class SearchFilterBuilder extends FilterBuilder
             throw new InvalidValueException('Invalid operator "' . $operator . '" provided.');
         }
 
-        if ($value === null && !in_array($this->operator, self::$NULL_OPERATORS)) {
+        if (is_null($value) && !in_array($this->operator, self::$NULL_OPERATORS)) {
             throw new InvalidValueException('Invalid value provided for "value".');
         }
 
@@ -115,7 +115,7 @@ class SearchFilterBuilder extends FilterBuilder
     {
         $is_null_operator = (in_array(strtoupper($operator), self::getNullOperators()));
 
-        if ($value === null && !$is_null_operator) {
+        if (is_null($value) && !$is_null_operator) {
             return ['EQ', $operator];
         } elseif ($is_null_operator) {
             return [$operator, null];
@@ -161,9 +161,9 @@ class SearchFilterBuilder extends FilterBuilder
         $operator = strtoupper($operator);
 
         return (
-            $value === null &&
-            in_array(strtoupper($operator), self::getOperators()) &&
-            !in_array($operator, self::getNullOperators())
+            is_null($value)
+            && in_array(strtoupper($operator), self::getOperators())
+            && ! in_array($operator, self::getNullOperators())
         );
     }
 
@@ -179,7 +179,7 @@ class SearchFilterBuilder extends FilterBuilder
             'operator' => $this->operator,
         ];
 
-        if ($this->value !== null) {
+        if (! is_null($this->value)) {
             $params['value'] = $this->value;
         }
 

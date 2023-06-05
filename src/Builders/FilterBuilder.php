@@ -130,7 +130,7 @@ class FilterBuilder implements BuilderInterface
      */
     protected function isBlankValue($val)
     {
-        if ($val === null) {
+        if (is_null($val)) {
             return true;
         } elseif (is_bool($val) || is_numeric($val)) {
             return false;
