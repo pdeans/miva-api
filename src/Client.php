@@ -5,9 +5,9 @@ namespace pdeans\Miva\Api;
 use pdeans\Http\Request;
 use pdeans\Http\Response;
 use pdeans\Miva\Api\Request as ApiRequest;
-use pdeans\Miva\Api\Builders\RequestBuilder;
 use pdeans\Miva\Api\Response as ApiResponse;
 use pdeans\Miva\Api\Builders\FunctionBuilder;
+use pdeans\Miva\Api\Builders\RequestBuilder;
 use pdeans\Miva\Api\Exceptions\InvalidMethodCallException;
 use pdeans\Miva\Api\Exceptions\MissingRequiredValueException;
 
