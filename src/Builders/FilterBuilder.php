@@ -38,9 +38,9 @@ class FilterBuilder implements BuilderInterface
     /**
      * Filter value list.
      *
-     * @var array
+     * @var GenericFilterBuilder|OnDemandColumnsFilterBuilder|ShowFilterBuilder|array
      */
-    protected array $valueList;
+    protected GenericFilterBuilder|OnDemandColumnsFilterBuilder|ShowFilterBuilder|array $valueList;
 
     /**
      * Create a new filter builder instance.
