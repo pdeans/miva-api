@@ -133,7 +133,7 @@ class FilterBuilder implements BuilderInterface
     /**
      * Define JSON serialization format.
      */
-    public function jsonSerialize(): array
+    public function jsonSerialize(): mixed
     {
         return [
             'name' => $this->name,
