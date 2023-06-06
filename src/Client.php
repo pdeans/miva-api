@@ -24,7 +24,7 @@ class Client
     protected Auth $auth;
 
     /**
-     * Http headers.
+     * List of API HTTP request headers.
      *
      * @var array
      */
@@ -84,7 +84,7 @@ class Client
 
         $this->headers = [];
 
-        if (!empty($this->options['http_headers'])) {
+        if (! empty($this->options['http_headers'])) {
             $this->addHeaders($this->options['http_headers']);
         }
     }
@@ -223,7 +223,7 @@ class Client
     {
         $request = new ApiRequest(
             $this->request,
-            (isset($this->options['http_client']) ? (array)$this->options['http_client'] : [])
+            isset($this->options['http_client']) ? (array) $this->options['http_client'] : []
         );
 
         $response = $request->sendRequest($this->getUrl(), $this->auth, $this->getHeaders());
