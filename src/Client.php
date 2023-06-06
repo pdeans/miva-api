@@ -35,14 +35,14 @@ class Client
      *
      * @var \pdeans\Http\Request|null
      */
-    protected Request|null $lastRequest;
+    protected Request|null $prevRequest;
 
     /**
      * PSR-7 Response instance.
      *
      * @var \pdeans\Http\Response
      */
-    protected Response $lastResponse;
+    protected Response $prevResponse;
 
     /**
      * Api configuration options.
@@ -71,7 +71,7 @@ class Client
     public function __construct(array $options)
     {
         $this->setOptions($options);
-        $this->lastRequest = null;
+        $this->prevRequest = null;
 
         $this->auth = new Auth(
             (string) $this->options['access_token'],
@@ -175,19 +175,19 @@ class Client
     }
 
     /**
-     * Get the last request instance.
+     * Get the previous request instance.
      */
-    public function getLastRequest(): Request
+    public function getPreviousRequest(): Request
     {
-        return $this->lastRequest;
+        return $this->prevRequest;
     }
 
     /**
-     * Get the last response instance.
+     * Get the previous response instance.
      */
-    public function getLastResponse(): Response
+    public function getPreviousResponse(): Response
     {
-        return $this->lastResponse;
+        return $this->prevResponse;
     }
 
     /**
@@ -203,7 +203,7 @@ class Client
      *
      * @link https://php.net/manual/en/json.constants.php Available options for the $encodeOpts parameter.
      */
-    public function getRequestBody(int $encodeOpts = 128, int $depth = 512): string
+    public function getRequestBody(int $encodeOpts = JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT, int $depth = 512): string
     {
         return (new ApiRequest($this->request))->getBody($encodeOpts, $depth);
     }
@@ -228,8 +228,8 @@ class Client
 
         $response = $request->sendRequest($this->getUrl(), $this->auth, $this->getHeaders());
 
-        $this->lastRequest  = $request->getLastRequest();
-        $this->lastResponse = $response;
+        $this->prevRequest = $request->getPreviousRequest();
+        $this->prevResponse = $response;
 
         // Save the function list names before clearing the request builder
         $functionList = array_keys($this->getFunctionList());
