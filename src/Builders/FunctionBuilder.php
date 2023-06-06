@@ -14,58 +14,58 @@ use pdeans\Miva\Api\Exceptions\MissingRequiredValueException;
 class FunctionBuilder implements BuilderInterface
 {
     /**
-     * Number of records to return
+     * Number of records to return.
      *
-     * @var null|int
+     * @var int|null
      */
-    public $count;
+    public int|null $count;
 
     /**
-     * List of FilterBuilder objects
+     * List of filter builder objects.
      *
-     * @var array
+     * @var \pdeans\Miva\Api\Builders\FilterBuilder[]
      */
-    public $filter_list;
+    public array $filterList;
 
     /**
-     * Function name
+     * Function name.
      *
      * @var string
      */
-    public $name;
+    public string $name;
 
     /**
-     * Number of records to offset the return count
+     * Number of records to offset the return count.
      *
-     * @var null|int
+     * @var int|null
      */
-    public $offset;
+    public int|null $offset;
 
     /**
-     * Function parameter list
+     * Function parameter list.
      *
      * @var array
      */
-    public $parameter_list;
+    public array $parameterList;
 
     /**
-     * Encryption passphrase
+     * Encryption passphrase.
      *
-     * @var null|string
+     * @var string|null
      */
-    public $passphrase;
+    public string|null $passphrase;
 
     /**
-     * Sort records modifier
+     * Sort records modifier.
      *
-     * @var null|string
+     * @var string|null
      */
-    public $sort;
+    public string|null $sort;
 
     /**
-     * Construct FunctionBuilder object
+     * Create a new function builder instance.
      *
-     * @param string $name  The function name
+     * @throws \pdeans\Miva\Api\Exceptions\MissingRequiredValueException
      */
     public function __construct(string $name)
     {
@@ -73,23 +73,19 @@ class FunctionBuilder implements BuilderInterface
             throw new MissingRequiredValueException('Invalid function name "' . $name . '" provided.');
         }
 
-        $this->name           = $name;
-        $this->count          = null;
-        $this->filter_list    = [];
-        $this->offset         = null;
-        $this->parameter_list = [];
-        $this->passphrase     = null;
-        $this->sort           = null;
+        $this->name = $name;
+        $this->count = null;
+        $this->filterList = [];
+        $this->offset = null;
+        $this->parameterList = [];
+        $this->passphrase = null;
+        $this->sort = null;
     }
 
     /**
-     * Set the number of records to return
-     *
-     * @param int $count
-     *
-     * @return self
+     * Set the number of records to return.
      */
-    public function count(int $count)
+    public function count(int $count): self
     {
         $this->count = $count;
 
@@ -97,50 +93,39 @@ class FunctionBuilder implements BuilderInterface
     }
 
     /**
-     * Create a filter and add it to the filter list
+     * Create a filter and add it to the filter list.
      *
-     * @param string $filter_name  The filter name
-     * @param mixed  $filter_value The filter value
-     *
-     * @return self
+     * @throws \pdeans\Miva\Api\Exceptions\InvalidValueException
      */
-    public function filter(string $filter_name, $filter_value)
+    public function filter(string $filterName, mixed $filterValue): self
     {
-        if (trim($filter_name) === '') {
-            throw new InvalidValueException('Invalid value "' . $filter_name . '" provided for filter name.');
+        if (trim($filterName) === '') {
+            throw new InvalidValueException('Invalid value "' . $filterName . '" provided for filter name.');
         }
 
-        $this->filter_list[] = (new FilterBuilder($filter_name, $filter_value))->addFilter();
+        $this->filterList[] = (new FilterBuilder($filterName, $filterValue))->addFilter();
 
         return $this;
     }
 
     /**
-     * Create a collection of filters and add them to the filter list
-     *
-     * @param array $filters  The collection of filters to create (filter name => filter value)
-     *
-     * @return self
+     * Add a list of filters to the filter list.
      */
-    public function filters(array $filters)
+    public function filters(array $filters): self
     {
-        foreach ($filters as $filter_name => $filter_value) {
-            $this->filter($filter_name, $filter_value);
+        foreach ($filters as $filterName => $filterValue) {
+            $this->filter($filterName, $filterValue);
         }
 
         return $this;
     }
 
     /**
-     * Format the parmater name
-     *
-     * @param string $param_name  The parameter name
-     *
-     * @return self
+     * Format a function parameter name.
      */
-    public function formatParameterName(string $param_name)
+    public function formatParameterName(string $paramName): string
     {
-        return mb_convert_case($param_name, MB_CASE_TITLE);
+        return mb_convert_case($paramName, MB_CASE_TITLE);
     }
 
     /**
@@ -148,10 +133,8 @@ class FunctionBuilder implements BuilderInterface
      *
      * This list maps corresponding helper methods within the class, with the
      * method name matching the parameter list value.
-     *
-     * @return array
      */
-    public function getCommonParameterList()
+    public function getCommonParameterList(): array
     {
         return [
             'count',
@@ -162,21 +145,17 @@ class FunctionBuilder implements BuilderInterface
     }
 
     /**
-     * Get the full parameter list
-     *
-     * @return array
+     * Get the full parameter list.
      */
-    public function getParameterList()
+    public function getParameterList(): array
     {
-        return array_merge($this->getCommonParameterList(), $this->parameter_list);
+        return array_merge($this->getCommonParameterList(), $this->parameterList);
     }
 
     /**
-     * Specify JSON serialization format
-     *
-     * @return array
+     * Get the request parameters.
      */
-    public function jsonSerialize(): array
+    public function getRequestParameters(): array
     {
         $function = [];
 
@@ -186,27 +165,31 @@ class FunctionBuilder implements BuilderInterface
             }
         }
 
-        if (!empty($this->parameter_list)) {
-            foreach ($this->parameter_list as $name => $value) {
+        if (! empty($this->parameterList)) {
+            foreach ($this->parameterList as $name => $value) {
                 $function[$this->formatParameterName($name)] = $value;
             }
         }
 
-        if (!empty($this->filter_list)) {
-            $function['Filter'] = $this->filter_list;
+        if (! empty($this->filterList)) {
+            $function['Filter'] = $this->filterList;
         }
 
         return $function;
     }
 
     /**
-     * Set the offset of the first record to return
-     *
-     * @param int $offset  0-based offset of the first record to return
-     *
-     * @return self
+     * Define the JSON serialization format.
      */
-    public function offset(int $offset)
+    public function jsonSerialize(): array
+    {
+        return $this->getRequestParameters();
+    }
+
+    /**
+     * Set the offset of the first record to return.
+     */
+    public function offset(int $offset): self
     {
         $this->offset = $offset;
 
@@ -214,13 +197,9 @@ class FunctionBuilder implements BuilderInterface
     }
 
     /**
-     * Shorthand method to set the ondemandcolumns filter list
-     *
-     * @param array $columns  The on demand columns
-     *
-     * @return self
+     * Shorthand method to set the ondemandcolumns filter list.
      */
-    public function odc(array $columns)
+    public function odc(array $columns): self
     {
         $this->ondemandcolumns($columns);
 
@@ -229,12 +208,8 @@ class FunctionBuilder implements BuilderInterface
 
     /**
      * Set the ondemandcolumns filter list
-     *
-     * @param array $columns  The on demand columns
-     *
-     * @return self
      */
-    public function ondemandcolumns(array $columns)
+    public function ondemandcolumns(array $columns): self
     {
         $this->filter('ondemandcolumns', $columns);
 
@@ -242,27 +217,19 @@ class FunctionBuilder implements BuilderInterface
     }
 
     /**
-     * Set additional Function input parameters
-     *
-     * @param array $parameters  The list of input parameters (parameter name => parameter value)
-     *
-     * @return self
+     * Set additional function input parameters.
      */
-    public function params(array $parameters)
+    public function params(array $parameters): self
     {
-        $this->parameter_list = $parameters;
+        $this->parameterList = $parameters;
 
         return $this;
     }
 
     /**
-     * Set the Passphrase parameter
-     *
-     * @param string $passphrase  The payment decryption passphrase
-     *
-     * @return self
+     * Set the passphrase parameter.
      */
-    public function passphrase(string $passphrase)
+    public function passphrase(string $passphrase): self
     {
         $this->passphrase = $passphrase;
 
@@ -270,22 +237,20 @@ class FunctionBuilder implements BuilderInterface
     }
 
     /**
-     * Create a search filter
+     * Add a search filter to the filter list.
      *
-     * @param array $args
-     *
-     * @return self
+     * @throws \pdeans\Miva\Api\Exceptions\InvalidValueException
      */
-    public function search(...$args)
+    public function search(mixed ...$args): self
     {
-        $args_count = count($args);
+        $argsCount = func_num_args();
 
-        if ($args_count < 1 || $args_count > 3) {
+        if ($argsCount < 1 || $argsCount > 3) {
             throw new InvalidValueException('Invalid arguments supplied for "' . __METHOD__ . '".');
         }
 
-        if ($args_count === 1) {
-            if (!is_array($args[0]) || empty($args[0])) {
+        if ($argsCount === 1) {
+            if (! is_array($args[0]) || empty($args[0])) {
                 throw new InvalidValueException('Invalid arguments supplied for "' . __METHOD__ . '".');
             }
 
@@ -296,9 +261,9 @@ class FunctionBuilder implements BuilderInterface
             [$operator, $value] = SearchFilterBuilder::getOperatorAndValue(...$args);
 
             $this->filter('search', [
-                'field'    => $field,
+                'field' => $field,
                 'operator' => strtoupper($operator),
-                'value'    => $value,
+                'value' => $value,
             ]);
         }
 
@@ -306,43 +271,31 @@ class FunctionBuilder implements BuilderInterface
     }
 
     /**
-     * Create a show filter
-     *
-     * @param string $show_value  The show value
-     *
-     * @return self
+     * Add a show filter to the filter list.
      */
-    public function show(string $show_value)
+    public function show(string $showValue): self
     {
-        $this->filter_list[] = (new FilterBuilder('show', $show_value, $this->name))->addFilter();
+        $this->filterList[] = (new FilterBuilder('show', $showValue, $this->name))->addFilter();
 
         return $this;
     }
 
     /**
-     * Set the column to sort results
-     *
-     * @param string $sort_column  The column name to sort the results
-     *
-     * @return self
+     * Set the column to sort results.
      */
-    public function sort(string $sort_column)
+    public function sort(string $sortColumn): self
     {
-        $this->sort = strtolower($sort_column);
+        $this->sort = strtolower($sortColumn);
 
         return $this;
     }
 
     /**
-     * Set the column to sort results in descending order
-     *
-     * @param string $sort_column  The column name to sort the results
-     *
-     * @return self
+     * Set the column to sort results in descending order.
      */
-    public function sortDesc(string $sort_column)
+    public function sortDesc(string $sortColumn): self
     {
-        $this->sort = '-' . strtolower(str_replace('-', '', $sort_column));
+        $this->sort = '-' . strtolower(ltrim($sortColumn, '-'));
 
         return $this;
     }

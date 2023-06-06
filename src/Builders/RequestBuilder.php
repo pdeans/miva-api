@@ -12,162 +12,130 @@ use pdeans\Miva\Api\Exceptions\MissingRequiredValueException;
 class RequestBuilder implements BuilderInterface
 {
     /**
-     * FunctionBuilder instance
+     * Function builder instance.
      *
-     * @var \pdeans\Miva\Api\Builders\FunctionBuilder
+     * @var \pdeans\Miva\Api\Builders\FunctionBuilder|null
      */
-    public $function;
+    public FunctionBuilder|null $function;
 
     /**
-     * API request function list
+     * API request function list.
      *
      * @var array
      */
-    protected $function_list;
+    protected array $functionList;
 
     /**
-     * Miva store code
+     * Miva store code.
      *
      * @var string
      */
-    public $store_code;
+    public string $storeCode;
 
     /**
-     * Flag for enabling/disabling Miva_Request_Timestamp parameter
+     * Flag to determine if the Miva_Request_Timestamp parameter should be added to the request.
      *
-     * @var boolean
+     * @var bool
      */
-    public $timestamp;
+    public bool $addTimestamp;
 
     /**
-     * Construct RequestBuilder object
+     * Create a new request builder instance.
      *
-     * @param string $store_code
-     * @param bool   $timestamp
+     * @throws \pdeans\Miva\Api\Exceptions\MissingRequiredValueException
      */
-    public function __construct(string $store_code, bool $timestamp = true)
+    public function __construct(string $storeCode, bool $addTimestamp = true)
     {
-        if (!strlen($store_code)) {
-            throw new MissingRequiredValueException('Store code must be provided.');
+        $this->storeCode = trim($storeCode);
+
+        if ($this->storeCode === '') {
+            throw new MissingRequiredValueException('A valid store code value must be provided.');
         }
 
-        $this->function      = null;
-        $this->function_list = [];
-        $this->store_code    = $store_code;
-        $this->timestamp     = $timestamp;
+        $this->function = null;
+        $this->functionList = [];
+        $this->addTimestamp = $addTimestamp;
     }
 
     /**
-     * Add current FunctionBuilder instance to function list
-     *
-     * @return self
+     * Add the current FunctionBuilder instance to the API request function list.
      */
-    public function addFunction()
+    public function addFunction(): self
     {
-        $this->function_list[$this->function->name][] = $this->function;
+        $this->functionList[$this->function->name][] = $this->function;
 
         return $this;
     }
 
     /**
-     * Get the API request function list
-     *
-     * @return array
+     * Get the API request function list.
      */
-    public function getFunctionList()
+    public function getFunctionList(): array
     {
-        return $this->function_list;
+        return $this->functionList;
     }
 
     /**
-     * Specify JSON serialization format
+     * Define JSON serialization format.
      *
-     * @return array
+     * @throws \pdeans\Miva\Api\Exceptions\MissingRequiredValueException
      */
     public function jsonSerialize(): array
     {
-        if (empty($this->function_list)) {
+        if (empty($this->functionList)) {
             throw new MissingRequiredValueException('Function list cannot be empty.');
         }
 
-        $request = ['Store_Code' => $this->store_code];
+        $request = ['Store_Code' => $this->storeCode];
 
-        if ($this->timestamp) {
+        if ($this->addTimestamp) {
             $request['Miva_Request_Timestamp'] = time();
         }
 
-        // Handy dandy function to auto-magically set parameter fields for
-        // single function calls
-        $setSingleFuncParams = function ($function_obj) {
-            $params = [];
+        if (count($this->functionList) === 1) {
+            $functionName = key($this->functionList);
+            $functions = $this->functionList[$functionName];
+            $functionCount = count($functions);
 
-            foreach ($this->function->getCommonparameterList() as $parameter) {
-                if (isset($function_obj->{$parameter})) {
-                    $params[$this->function->formatParameterName($parameter)] = $function_obj->{$parameter};
-                }
-            }
+            $request['Function'] = $functionName;
 
-            if (!empty($function_obj->parameter_list)) {
-                foreach ($function_obj->parameter_list as $name => $value) {
-                    $params[$this->function->formatParameterName($name)] = $value;
-                }
-            }
-
-            if (!empty($function_obj->filter_list)) {
-                $params['Filter'] = $function_obj->filter_list;
-            }
-
-            return $params;
-        };
-
-        if (count($this->function_list) === 1) {
-            $function_name  = key($this->function_list);
-            $functions      = $this->function_list[$function_name];
-            $function_count = count($functions);
-
-            $request['Function'] = $function_name;
-
-            if ($function_count === 1) {
-                $request = array_merge($request, $setSingleFuncParams($functions[0]));
-            } elseif ($function_count > 1) {
+            if ($functionCount === 1) {
+                $request = array_merge($request, $functions[0]->getRequestParameters());
+            } elseif ($functionCount > 1) {
                 $request['Iterations'] = $functions;
             }
-        } elseif (count($this->function_list) > 1) {
-            $function_operations = [];
+        } elseif (count($this->functionList) > 1) {
+            $functionOperations = [];
 
-            foreach ($this->function_list as $function_name => $functions) {
-                $function_count = count($functions);
-                $operation     = ['Function' => $function_name];
+            foreach ($this->functionList as $functionName => $functions) {
+                $functionCount = count($functions);
+                $operation = ['Function' => $functionName];
 
-                if ($function_count === 1) {
-                    $operation = array_merge($operation, $setSingleFuncParams($functions[0]));
-                } elseif ($function_count > 1) {
+                if ($functionCount === 1) {
+                    $operation = array_merge($operation, $functions[0]->getRequestParameters());
+                } elseif ($functionCount > 1) {
                     $operation['Iterations'] = $functions;
                 }
 
-                $function_operations[] = $operation;
+                $functionOperations[] = $operation;
             }
 
-            $request['Operations'] = $function_operations;
+            $request['Operations'] = $functionOperations;
         }
 
         return $request;
     }
 
     /**
-     * Create a new FunctionBuilder instance
-     *
-     * @param string $name  The function name
-     *
-     * @return self
+     * Set the function property with a new function builder instance and add function name to function list.
      */
-    public function newFunction(string $name)
+    public function newFunction(string $name): self
     {
-        if (!isset($this->function_list[$name])) {
-            $this->function_list[$name] = [];
-        }
-
         $this->function = new FunctionBuilder($name);
+
+        if (! isset($this->functionList[$name])) {
+            $this->functionList[$name] = [];
+        }
 
         return $this;
     }

@@ -11,36 +11,36 @@ use pdeans\Miva\Api\Exceptions\InvalidValueException;
 class SearchFilterBuilder extends FilterBuilder
 {
     /**
-     * Filter search field
+     * Filter search field.
      *
      * @var string
      */
-    public $field;
+    public string $field;
 
     /**
-     * List of valid NULL search operators
+     * List of valid NULL search operators.
      *
      * @var array
      */
-    protected static $NULL_OPERATORS = [
+    protected static array $NULL_OPERATORS = [
         'TRUE',  // "field" is true
         'FALSE', // "field" is false
         'NULL',  // "field" is null
     ];
 
     /**
-     * Filter serach operator
+     * Filter search operator.
      *
      * @var string
      */
-    public $operator;
+    public string $operator;
 
     /**
-     * List of valid search operators
+     * List of valid search operators.
      *
      * @var array
      */
-    protected static $OPERATORS = [
+    protected static array $OPERATORS = [
         'EQ',       // "field" equals "value" (generally case insensitive)
         'GT',       // "field" is greater than to "value"
         'GE',       // "field" is greater than or equal to "value"
@@ -59,20 +59,18 @@ class SearchFilterBuilder extends FilterBuilder
     ];
 
     /**
-     * Filter search value
+     * Filter search value.
      *
-     * @var string|null
+     * @var mixed
      */
-    public $value;
+    public mixed $value;
 
     /**
-     * Construct SearchFilterBuilder object
+     * Create a new search filter builder instance.
      *
-     * @param string $field    The search field name
-     * @param string $operator The search operator
-     * @param mixed  $value    The search value
+     * @throws \pdeans\Miva\Api\Exceptions\InvalidValueException
      */
-    public function __construct(string $field, string $operator, $value = null)
+    public function __construct(string $field, string $operator, mixed $value = null)
     {
         $this->field = trim($field);
 
@@ -86,7 +84,7 @@ class SearchFilterBuilder extends FilterBuilder
             throw new InvalidValueException('Invalid operator "' . $operator . '" provided.');
         }
 
-        if ($value === null && !in_array($this->operator, self::$NULL_OPERATORS)) {
+        if (is_null($value) && !in_array($this->operator, self::$NULL_OPERATORS)) {
             throw new InvalidValueException('Invalid value provided for "value".');
         }
 
@@ -94,92 +92,76 @@ class SearchFilterBuilder extends FilterBuilder
     }
 
     /**
-     * Get the search null operators list
-     *
-     * @return array
+     * Get the search null operators list.
      */
-    public static function getNullOperators()
+    public static function getNullOperators(): array
     {
         return self::$NULL_OPERATORS;
     }
 
     /**
-     * Get the search filter operator and value
+     * Get the search filter operator and value.
      *
-     * @param string $operator
-     * @param mixed  $value
-     *
-     * @return array
+     * @throws \pdeans\Miva\Api\Exceptions\InvalidArgumentException
      */
-    public static function getOperatorAndValue(string $operator, $value = null)
+    public static function getOperatorAndValue(string $operator, mixed $value = null): array
     {
-        $is_null_operator = (in_array(strtoupper($operator), self::getNullOperators()));
+        $isNullOperator = in_array(strtoupper($operator), self::getNullOperators());
 
-        if ($value === null && !$is_null_operator) {
+        if (is_null($value) && !$isNullOperator) {
             return ['EQ', $operator];
-        } elseif ($is_null_operator) {
+        }
+
+        if ($isNullOperator) {
             return [$operator, null];
-        } elseif (self::isInvalidOperatorAndValue($operator, $value)) {
+        }
+
+        if (self::isInvalidOperatorAndValue($operator, $value)) {
             throw new InvalidArgumentException('Invalid operator and value search filter combination.');
         }
 
-        return (self::isInvalidOperator($operator) ? ['EQ', $operator] : [$operator, $value]);
+        return self::isInvalidOperator($operator) ? ['EQ', $operator] : [$operator, $value];
     }
 
     /**
-     * Get the search operators list
-     *
-     * @return array
+     * Get the search operators list.
      */
-    public static function getOperators()
+    public static function getOperators(): array
     {
         return self::$OPERATORS;
     }
 
     /**
-     * Determine if search operator is valid
-     *
-     * @param mixed $operator
-     *
-     * @return boolean
+     * Determine if a search operator is valid.
      */
-    public static function isInvalidOperator($operator)
+    public static function isInvalidOperator(mixed $operator): bool
     {
-        return (!is_string($operator) || !in_array(strtoupper($operator), self::getOperators()));
+        return ! is_string($operator) || ! in_array(strtoupper($operator), self::getOperators());
     }
 
     /**
-     * Determine if search operator and value combination are valid
-     *
-     * @param mixed $operator
-     * @param mixed $value
-     *
-     * @return boolean
+     * Determine if search operator and value combination are valid.
      */
-    public static function isInvalidOperatorAndValue($operator, $value)
+    public static function isInvalidOperatorAndValue(mixed $operator, mixed $value): bool
     {
         $operator = strtoupper($operator);
 
-        return (
-            $value === null &&
-            in_array(strtoupper($operator), self::getOperators()) &&
-            !in_array($operator, self::getNullOperators())
-        );
+        return is_null($value)
+            && in_array($operator, self::getOperators())
+            && ! in_array($operator, self::getNullOperators());
     }
 
     /**
-     * Specify JSON serialization format
-     *
-     * @return array
+     * Define JSON serialization format.
      */
     public function jsonSerialize(): array
     {
         $params = [
-            'field'    => $this->field,
+            'field' => $this->field,
             'operator' => $this->operator,
         ];
 
-        if ($this->value !== null) {
+        if (! is_null($this->value)) {
             $params['value'] = $this->value;
         }
 

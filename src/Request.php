@@ -2,8 +2,11 @@
 
 namespace pdeans\Miva\Api;
 
+use JsonException;
 use pdeans\Http\Client;
-use pdeans\Http\Factories\MessageFactory;
+use pdeans\Http\Factories\StreamFactory;
+use pdeans\Http\Request as HttpRequest;
+use pdeans\Http\Response as HttpResponse;
 use pdeans\Miva\Api\Builders\RequestBuilder;
 use pdeans\Miva\Api\Exceptions\JsonSerializeException;
 
@@ -13,133 +16,102 @@ use pdeans\Miva\Api\Exceptions\JsonSerializeException;
 class Request
 {
     /**
-     * API request body
+     * API request body.
      *
      * @var string
      */
-    protected $body;
+    protected string $body;
 
     /**
-     * HTTP Client (cURL)
+     * HTTP client (cURL) instance.
      *
      * @var \pdeans\Http\Client
      */
-    protected $client;
+    protected Client $client;
 
     /**
-     * API request headers
+     * API request headers.
      *
      * @var array
      */
-    protected $headers;
+    protected array $headers;
 
     /**
-     * The last API request
+     * The previous API request instance.
      *
-     * @var \Zend\Diactoros\Request
+     * @var \pdeans\Http\Request|null
      */
-    protected $last_request;
+    protected HttpRequest|null $prevRequest;
 
     /**
-     * Factory for create PSR-7 requests
-     *
-     * @var \pdeans\Http\Factories\MessageFactory
-     */
-    protected $msg_factory;
-
-    /**
-     * The API RequestBuilder instance
+     * The API request builder instance.
      *
      * @var \pdeans\Miva\Api\Builders\RequestBuilder
      */
-    protected $request;
+    protected RequestBuilder $request;
 
     /**
-     * Construct API Request object
+     * PSR-7 stream factory instance.
      *
-     * @param \pdeans\Miva\Api\Builders\RequestBuilder $request     RequestBuilder object
-     * @param array                                    $client_opts cURL client options
+     * @var \pdeans\Http\Factories\StreamFactory
      */
-    public function __construct(RequestBuilder $request, array $client_opts = [])
+    protected StreamFactory $streamFactory;
+
+    /**
+     * Create a new API request instance.
+     */
+    public function __construct(RequestBuilder $request, array $clientOpts = [])
     {
-        $this->request      = $request;
-        $this->client       = new Client($client_opts);
-        $this->msg_factory  = new MessageFactory();
-        $this->headers      = ['Content-Type' => 'application/json'];
-        $this->body         = null;
-        $this->last_request = null;
+        $this->request = $request;
+        $this->client = new Client($clientOpts);
+        $this->headers = ['Content-Type' => 'application/json'];
+        $this->body = '';
+        $this->prevRequest = null;
+        $this->streamFactory = new StreamFactory();
     }
 
     /**
-     * Create the request body
+     * Get the API request body.
      *
-     * @link http://php.net/manual/en/json.constants.php
+     * @link https://php.net/manual/en/json.constants.php
      *
-     * @param \pdeans\Miva\Api\Builders\RequestBuilder $request     The RequestBuilder object
-     * @param int                                      $encode_opts Bitmask consisting of JSON constants
-     * @param int                                      $depth       The maximum JSON depth
-     *
-     * @return string
+     * @throws \pdeans\Miva\Api\Exceptions\JsonSerializeException
      */
-    protected function createRequestBody(RequestBuilder $request, int $encode_opts = 0, int $depth = 512)
+    public function getBody(int $encodeOpts = JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT, int $depth = 512): string
     {
-        $request_body = json_encode($request, $encode_opts, $depth);
-
-        if (json_last_error()) {
-            throw new JsonSerializeException(json_last_error());
+        try {
+            $this->body = json_encode($this->request, $encodeOpts, $depth);
+        } catch (JsonException $exception) {
+            throw new JsonSerializeException($exception->getMessage());
         }
-
-        return $request_body;
-    }
-
-    /**
-     * Get the request body
-     *
-     * @link http://php.net/manual/en/json.constants.php
-     *
-     * @param int $encode_opts Bitmask consisting of JSON constants
-     * @param int $depth       The maximum JSON depth
-     *
-     * @return string
-     */
-    public function getBody(int $encode_opts = 128, int $depth = 512)
-    {
-        $this->body = $this->createRequestBody($this->request, $encode_opts, $depth);
 
         return $this->body;
     }
 
     /**
-     * Get the last PSR-7 Request object
-     *
-     * @return \Zend\Diactoros\Request
+     * Get the previous API request.
      */
-    public function getLastRequest()
+    public function getPreviousRequest(): HttpRequest|null
     {
-        return $this->last_request;
+        return $this->prevRequest;
     }
 
     /**
-     * Send an API request
-     *
-     * @param string $url          The API endpoint url
-     * @param Auth   $auth         API Auth object
-     * @param array  $http_headers List of HTTP headers
-     *
-     * @return \Zend\Diactoros\Response
+     * Send an API request.
      */
-    public function sendRequest(string $url, Auth $auth, array $http_headers = [])
+    public function sendRequest(string $url, Auth $auth, array $httpHeaders = []): HttpResponse
     {
         $body = $this->getBody();
+
         $headers = array_merge(
             $this->headers,
-            $http_headers,
+            $httpHeaders,
             $auth->getAuthHeader($body)
         );
 
-        $request = $this->msg_factory->createRequest('POST', $url, $headers, $body);
+        $request = new HttpRequest($url, 'POST', $this->streamFactory->createStream($body), $headers);
 
-        $this->last_request = $request;
+        $this->prevRequest = $request;
 
         return $this->client->sendRequest($request);
     }

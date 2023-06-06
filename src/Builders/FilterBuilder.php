@@ -15,40 +15,39 @@ use pdeans\Miva\Api\Exceptions\MissingRequiredValueException;
 class FilterBuilder implements BuilderInterface
 {
     /**
-     * API function name - for use with 'show' filters
+     * API function name - for use with 'show' filters.
      *
-     * @var null|string
+     * @var string|null
      */
-    protected $function_name;
+    protected string|null $functionName;
 
     /**
-     * Filter name
+     * Filter name.
      *
      * @var string
      */
-    public $name;
+    public string $name;
 
     /**
-     * Filter value
+     * Filter value.
      *
      * @var mixed
      */
-    public $value;
+    public mixed $value;
 
     /**
-     * Filter value list
+     * Filter value list.
      *
-     * @var array
+     * @var GenericFilterBuilder|OnDemandColumnsFilterBuilder|ShowFilterBuilder|array
      */
-    protected $value_list;
+    protected GenericFilterBuilder|OnDemandColumnsFilterBuilder|ShowFilterBuilder|array $valueList;
 
     /**
-     * Construct FilterBuilder object
+     * Create a new filter builder instance.
      *
-     * @param string $name  The filter name
-     * @param mixed  $value The filter value
+     * @throws \pdeans\Miva\Api\Exceptions\InvalidValueException
      */
-    public function __construct(string $name, $value, $function_name = null)
+    public function __construct(string $name, mixed $value, string|null $functionName = null)
     {
         $this->name = trim($name);
 
@@ -62,97 +61,106 @@ class FilterBuilder implements BuilderInterface
             throw new InvalidValueException('Invalid value provided for "value".');
         }
 
-        $this->value_list    = [];
-        $this->function_name = $function_name;
+        $this->valueList    = [];
+        $this->functionName = $functionName;
     }
 
     /**
-     * Add filter to filter value list
-     *
-     * @return self
+     * Add a filter to the filter value list.
      */
-    public function addFilter()
+    public function addFilter(): self
     {
         $name = strtolower($this->name);
 
         if ($name === 'search') {
-            $validateSearch = function ($search) {
-                if (!isset($search['field'])) {
-                    throw new MissingRequiredValueException('Missing required filter property "field".');
-                } elseif (!isset($search['operator'])) {
-                    throw new MissingRequiredValueException('Missing required filter property "operator".');
-                } elseif (
-                    !isset($search['value']) &&
-                    !in_array(strtoupper($search['operator']), SearchFilterBuilder::getNullOperators())
-                ) {
-                    throw new MissingRequiredValueException('Missing required filter property "value".');
-                }
-            };
-
             if (isset($this->value[0])) {
-                foreach ($this->value as $search_filter) {
-                    $validateSearch($search_filter);
+                foreach ($this->value as $searchFilter) {
+                    $this->validateSearchFilter($searchFilter);
 
-                    $this->value_list[] = new SearchFilterBuilder(
-                        $search_filter['field'],
-                        $search_filter['operator'],
-                        (isset($search_filter['value']) ? $search_filter['value'] : null)
+                    $this->valueList[] = new SearchFilterBuilder(
+                        $searchFilter['field'],
+                        $searchFilter['operator'],
+                        isset($searchFilter['value']) ? $searchFilter['value'] : null
                     );
                 }
             } else {
-                $validateSearch($this->value);
+                $this->validateSearchFilter($this->value);
 
-                $this->value_list[] = new SearchFilterBuilder(
+                $this->valueList[] = new SearchFilterBuilder(
                     $this->value['field'],
                     $this->value['operator'],
-                    (isset($this->value['value']) ? $this->value['value'] : null)
+                    isset($this->value['value']) ? $this->value['value'] : null
                 );
             }
         } elseif ($name === 'ondemandcolumns') {
-            $this->value_list = new OnDemandColumnsFilterBuilder($this->value);
+            $this->valueList = new OnDemandColumnsFilterBuilder($this->value);
         } elseif ($name === 'show') {
-            $show_filter      = new ShowFilterBuilder($this->function_name, $this->value);
-            $this->name       = $show_filter->getFilterName();
-            $this->value_list = $show_filter;
+            $showFilter = new ShowFilterBuilder($this->functionName, $this->value);
+
+            $this->name = $showFilter->getFilterName();
+            $this->valueList = $showFilter;
         } else {
-            $this->value_list = new GenericFilterBuilder($this->value);
+            $this->valueList = new GenericFilterBuilder($this->value);
         }
 
         return $this;
     }
 
     /**
-     * Determine if value is blank
-     *
-     * @param mixed $val
-     *
-     * @return boolean
+     * Determine if a filter value is blank.
      */
-    protected function isBlankValue($val)
+    protected function isBlankValue(mixed $value): bool
     {
-        if ($val === null) {
+        if (is_null($value)) {
             return true;
-        } elseif (is_bool($val) || is_numeric($val)) {
-            return false;
-        } elseif (is_string($val)) {
-            return (trim($val) === '');
-        } elseif ($val instanceof Countable) {
-            return (count($val) === 0);
         }
 
-        return empty($val);
+        if (is_string($value)) {
+            return trim($value) === '';
+        }
+
+        if (is_bool($value) || is_numeric($value)) {
+            return false;
+        }
+
+        if ($value instanceof Countable) {
+            return count($value) === 0;
+        }
+
+        return empty($value);
     }
 
     /**
-     * Specify JSON serialization format
-     *
-     * @return array
+     * Define JSON serialization format.
      */
-    public function jsonSerialize(): array
+    public function jsonSerialize(): mixed
     {
         return [
-            'name'  => $this->name,
-            'value' => $this->value_list,
+            'name' => $this->name,
+            'value' => $this->valueList,
         ];
+    }
+
+    /**
+     * Validate a search filter.
+     *
+     * @throws \pdeans\Miva\Api\Exceptions\MissingRequiredValueException
+     */
+    protected function validateSearchFilter(array $filter): void
+    {
+        if (! isset($filter['field'])) {
+            throw new MissingRequiredValueException('Missing required filter property "field".');
+        }
+
+        if (! isset($filter['operator'])) {
+            throw new MissingRequiredValueException('Missing required filter property "operator".');
+        }
+
+        if (
+            ! isset($filter['value'])
+            && !in_array(strtoupper($filter['operator']), SearchFilterBuilder::getNullOperators())
+        ) {
+            throw new MissingRequiredValueException('Missing required filter property "value".');
+        }
     }
 }

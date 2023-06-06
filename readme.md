@@ -5,15 +5,15 @@
   Author: pdeans
   -->
 
-# Miva JSON Api PHP Library
+## Miva JSON Api PHP Library
 
 PHP library for interacting with the Miva JSON API.
 
 ### Table Of Contents
 
 - [Installation](#installation)
-- [Configuring the Api Manager](#configuring-the-api-manager)
-    * [Manager Configuration Options](#manager-configuration-options)
+- [Configuring the Api Client](#configuring-the-api-client)
+    * [Client Configuration Options](#client-configuration-options)
 - [Authentication](#authentication)
 - [JSON Request Format](#json-request-format)
 - [Function Builder](#function-builder)
@@ -44,11 +44,11 @@ Install via [Composer](https://getcomposer.org/).
 $ composer require pdeans/miva-api
 ```
 
-## Configuring the Api Manager
+## Configuring the Api Client
 
-Utilizing the library to interact with the Api is accomplished via the `Manager` class. The `Manager` class accepts an array containing Api and HTTP client (cURL) configuration options in key/value format.
+Utilizing the library to interact with the Api is accomplished via the `Client` class. The `Client` class accepts an array containing Api and HTTP client (cURL) configuration options in key/value format.
 
-### Manager Configuration Options
+### Client Configuration Options
 
 Key | Required | Type | Description
 ----|:--------:|:----:|------------
@@ -59,14 +59,14 @@ private_key | **Yes** | string | The Api private key. **Hint:** If omitting sign
 hmac | No | string | HMAC signature type. Defaults to sha256. Valid types are one of: `sha256`, `sha1`, `''` (Enter a blank string literal if omitting signature validation).
 timestamp | No | boolean | Enable/disable Api request timestamp validation. Defaults to true (Enabled).
 http_headers | No | array | HTTP request headers. Note that the library will automatically send the `Content-Type: application/json` and `X-Miva-API-Authorization` headers with each Api request. For this reason, these headers should not be included in this list.
-http_client | No | array | Associative array of [curl options](http://php.net/curl_setopt).
+http_client | No | array | Associative array of [curl options](https://php.net/curl_setopt).
 
 Example:
 
 ```php
-use pdeans\Miva\Api\Manager;
+use pdeans\Miva\Api\Client;
 
-$api = new Manager([
+$api = new Client([
     'url'          => 'https://www.domain.com/mm5/json.mvc',
     'store_code'   => 'PS',
     'access_token' => '0f90f77b58ca98836eba3d50f526f523',
@@ -74,7 +74,7 @@ $api = new Manager([
 ]);
 
 // Example with Basic Authentication header and curl options
-$api = new Manager([
+$api = new Client([
     'url'          => 'https://www.domain.com/mm5/json.mvc',
     'store_code'   => 'PS',
     'access_token' => '0f90f77b58ca98836eba3d50f526f523',
@@ -93,11 +93,11 @@ $api = new Manager([
 
 ## Authentication
 
-The Miva Api authorization header will be automatically generated based on the configuration settings passed into the `Manager` object and sent along with each Api request. The configuration settings should match the Miva store settings for the given Api token.
+The Miva Api authorization header will be automatically generated based on the configuration settings passed into the `Client` object and sent along with each Api request. The configuration settings should match the Miva store settings for the given Api token.
 
 ## JSON Request Format
 
-The required `Miva_Request_Timestamp` and `Store_Code` properties are automatically generated based on the configuration settings passed into the `Manager` object and added to the JSON body for every Api request. The `Function` property is also automatically added to the JSON body for every request. The JSON data generated for the `Function` property will vary based on the provided request function list.
+The required `Miva_Request_Timestamp` and `Store_Code` properties are automatically generated based on the configuration settings passed into the `Client` object and added to the JSON body for every Api request. The `Function` property is also automatically added to the JSON body for every request. The JSON data generated for the `Function` property will vary based on the provided request function list.
 
 ## Function Builder
 
@@ -134,7 +134,7 @@ $api->func('OrderList_Load_Query')
 
 Most of the function search/display filters have an associated helper method that acts as a shorthand, or factory for creating the respective filter. The `filter` method must be used for any filter that does not have a linked helper method, as shown in the example above. This method can also be used to create each filter covered below. The method accepts two arguments, with the first argument always being the filter name. The second argument takes the filter value, which will vary per filter type.
 
-The available search/display helper methods are covered below. 
+The available search/display helper methods are covered below.
 
 ##### Search
 
@@ -166,7 +166,7 @@ $api->func('ProductList_Load_Query')
 $api->func('ProductList_Load_Query')
     ->search('price', 'GE', 2.20)
     ->add();
-    
+
 $api->func('ProductList_Load_Query')
     ->search('Category', 'IN', '13707,13708')
     ->add();
@@ -395,11 +395,11 @@ You may preview the current request body at any time before sending the request 
 echo '<pre>', $api->getRequestBody(), '</pre>';
 ```
 
-### API Responses
+## API Responses
 
-By default, Api responses will return a `pdeans\Miva\Api\Response` class instance. The `Response` object hosts a number of helper methods for interacting with the Api responses.
+By default, Api responses will return a `pdeans\Miva\Api\Response` class instance. The `Response` object includes a number of helper methods for interacting with the Api responses.
 
-##### Checking For Request Errors
+### Checking For Request Errors
 
 Checking for errors that may have occurred on the Api request can be accomplished with the `getErrors` method. This method will return a `stdClass` object containing the error code and error message thrown. The `isSuccess` method returns a boolean value which can be used as a flag to determine if a request error occurred:
 
@@ -412,7 +412,7 @@ if (!$response->isSuccess()) {
 }
 ```
 
-##### Response Body
+### Response Body
 
 The raw JSON response body can be retrieved anytime using the `getBody` method:
 
@@ -422,7 +422,7 @@ $response = $api->func('ProductList_Load_Query')->add()->send();
 echo '<pre>', $response->getBody(), '</pre>';
 ```
 
-To receive an iterable form of the Api response, issue the `getResponse` method. This will return an array of objects, with the array keys mapping to the function names supplied to the Api request function list. The items are sorted in identical order to the Api request function list. Each item or "function", contains its own array of the results of the function request. These array items correlate to each of the function's iterations that were sent in the request. The items are sorted in the same order that they were issued in the request. Use the `getFunctionsList` to retrieve the list of available functions.
+To receive an iterable form of the Api response, issue the `getResponse` method. This will return an array of objects, with the array keys mapping to the function names supplied to the Api request function list. The items are sorted in identical order to the Api request function list. Each item or "function", contains its own array of the results of the function request. These array items correlate to each of the function's iterations that were sent in the request. The items are sorted in the same order that they were issued in the request. Use the `getFunctions` method to retrieve the list of available functions.
 
 The `getFunction` method may be used to explicitly return the response results for a specific function name. This can also be accomplished with the `getResponse` method by passing the function name as the first argument.
 
@@ -448,8 +448,8 @@ foreach ($results as $result) {
     var_dump($result);
 }
 
-// Return list of available functions
-var_dump($response->getFunctionsList());
+// Return list of available functions in the response
+var_dump($response->getFunctions());
 
 // Isolate and return responses for specific function
 var_dump($response->getFunction('ProductList_Load_Query'));
@@ -480,7 +480,7 @@ This section covers library helper methods.
 
 ### Troubleshooting Api Requests And Responses
 
-To aid in troubleshooting Api requests and responses, [PSR-7 Request](http://www.php-fig.org/psr/psr-7/) and [Response](http://www.php-fig.org/psr/psr-7/) objects can be obtained using the `getLastRequest` and `getLastResponse` methods respectively after an Api request has been issued:
+To aid in troubleshooting Api requests and responses, [PSR-7 Request](https://www.php-fig.org/psr/psr-7/) and [PSR-7 Response](https://www.php-fig.org/psr/psr-7/) objects can be obtained using the `getPreviousRequest` and `getPreviousResponse` methods respectively after an Api request has been issued:
 
 ```php
 // Add functions to request function list
@@ -489,11 +489,11 @@ $api->func('OrderCustomFieldList_Load')->add();
 $response = $api->send();
 
 // Output Api request authentication header value
-echo $api->getLastRequest()->getHeader('X-Miva-API-Authorization')[0];
+echo $api->getPreviousRequest()->getHeader('X-Miva-API-Authorization')[0];
 
 // Output the response HTTP status line
-$last_response = $api->getLastResponse();
-echo $last_response->getStatusCode(), ' ', $last_response->getReasonPhrase();
+$prevResponse = $api->getPreviousResponse();
+echo $prevResponse->getStatusCode(), ' ', $prevResponse->getReasonPhrase();
 ```
 
 Furthermore, the `getUrl`, `getHeaders`, and `getFunctionList` methods may be used to inspect and troubleshoot requests before they are sent off to the Api:

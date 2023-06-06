@@ -5,7 +5,7 @@ namespace pdeans\Miva\Api\Builders;
 /**
  * OnDemandColumnsFilterBuilder class
  *
- * Build an ondemandcolumns request Function filter.
+ * Build an ondemandcolumns request function filter.
  */
 class OnDemandColumnsFilterBuilder extends FilterBuilder
 {
@@ -14,12 +14,10 @@ class OnDemandColumnsFilterBuilder extends FilterBuilder
      *
      * @var array
      */
-    public $columns;
+    public array $columns;
 
     /**
-     * Construct OnDemandColumnsFilterBuilder object
-     *
-     * @param array $columns  The list of on-demand columns
+     * Create a new on-demand columns filter builder instance.
      */
     public function __construct(array $columns)
     {
@@ -27,9 +25,7 @@ class OnDemandColumnsFilterBuilder extends FilterBuilder
     }
 
     /**
-     * Specify JSON serialization format
-     *
-     * @return array
+     * Define JSON serialization format.
      */
     public function jsonSerialize(): array
     {

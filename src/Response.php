@@ -2,9 +2,10 @@
 
 namespace pdeans\Miva\Api;
 
+use stdClass;
+use JsonException;
 use pdeans\Miva\Api\Exceptions\InvalidValueException;
 use pdeans\Miva\Api\Exceptions\JsonSerializeException;
-use stdClass;
 
 /**
  * API Response class
@@ -12,226 +13,203 @@ use stdClass;
 class Response
 {
     /**
-     * API response body
+     * The API response body.
      *
      * @var string
      */
-    protected $body;
+    protected string $body;
 
     /**
-     * API errors object
+     * The API response data structure.
+     *
+     * @var array
+     */
+    protected array $data;
+
+    /**
+     * The API errors instance.
      *
      * @var stdClass
      */
-    protected $errors;
+    protected stdClass $errors;
 
     /**
-     * API Response array
+     * The list of functions included in the API request.
      *
      * @var array
      */
-    protected $functions;
+    protected array $functions;
 
     /**
-     * API request function names list
+     * Flag for determining if Api request was successful.
      *
-     * @var array
+     * @var bool|null
      */
-    protected $functions_list;
+    protected bool|null $success;
 
     /**
-     * Flag for determining if Api request was successful
-     *
-     * @var boolean
-     */
-    protected $success;
-
-    /**
-     * Construct API Response object
-     *
-     * @param array  $request_function_list API request function names list
-     * @param string $response_body         API response body
+     * Create a new API response instance.
      *
      * @throws \pdeans\Miva\Api\Exceptions\InvalidValueException
      */
-    public function __construct(array $request_function_list, string $response_body)
+    public function __construct(array $requestFunctionsList, string $responseBody)
     {
-        if (empty($request_function_list)) {
+        if (empty($requestFunctionsList)) {
             throw new InvalidValueException('Empty request function list provided.');
         }
 
-        $this->functions_list = $request_function_list;
-        $this->body           = $response_body;
-        $this->errors         = new stdClass();
-        $this->functions      = [];
+        $this->body = $responseBody;
+        $this->data = [];
+        $this->errors = new stdClass();
+        $this->functions = $requestFunctionsList;
+        $this->success = null;
 
-        $this->parseResponseBody($response_body);
+        $this->parseResponseBody($responseBody);
     }
 
     /**
-     * Get the response body
-     *
-     * @return string
+     * Get the API response body.
      */
-    public function getBody()
+    public function getBody(): string
     {
         return $this->body;
     }
 
     /**
-     * Get API response data property for specific function
+     * Get the API response data property for specific function.
      *
-     * @param  string  $function_name The function name
-     * @param  integer $index         The functions list function index
-     *
-     * @return \stdClass
+     * @throws \pdeans\Miva\Api\Exceptions\InvalidValueException
      */
-    public function getData(string $function_name, int $index = 0)
+    public function getData(string $functionName, int $index = 0): stdClass
     {
-        if (!$this->isValidFunction($function_name)) {
-            $this->throwInvalidFunctionError($function_name);
-        } elseif (!isset($this->functions[$function_name][$index])) {
+        if (! $this->isValidFunction($functionName)) {
+            $this->throwInvalidFunctionError($functionName);
+        }
+
+        if (! isset($this->data[$functionName][$index])) {
             throw new InvalidValueException(
-                'Index "' . $index . '" does not exist for function "' . $function_name . '".'
+                'Index "' . $index . '" does not exist for function "' . $functionName . '".'
             );
         }
 
-        $function_data = $this->functions[$function_name][$index];
+        $functionData = $this->data[$functionName][$index];
 
-        return ($function_data->data ?? $function_data);
+        return $functionData->data ?? $functionData;
     }
 
     /**
-     * Get API request errors
-     *
-     * @return \stdClass
+     * Get the API response errors.
      */
-    public function getErrors()
+    public function getErrors(): stdClass
     {
         return $this->errors;
     }
 
     /**
-     * Get full API response for specific function
+     * Get the full API response for specific function.
      *
-     * @param string $function_name  The function name
-     *
-     * @return array
+     * @throws \pdeans\Miva\Api\Exceptions\InvalidValueException
      */
-    public function getFunction(string $function_name)
+    public function getFunction(string $functionName): array
     {
-        if (!$this->isValidFunction($function_name)) {
-            $this->throwInvalidFunctionError($function_name);
+        if (! $this->isValidFunction($functionName)) {
+            $this->throwInvalidFunctionError($functionName);
         }
 
-        return $this->functions[$function_name];
+        return $this->data[$functionName];
     }
 
     /**
-     * Get the API response functions list
-     *
-     * @return array
+     * Get the list of functions included in the API response.
      */
-    public function getFunctionsList()
+    public function getFunctions(): array
     {
-        return $this->functions_list;
-    }
-
-    /**
-     * Get the API response object
-     *
-     * @param string|null $function_name Get API response for specific function
-     *
-     * @return array
-     */
-    public function getResponse($function_name = null)
-    {
-        if ($function_name !== null) {
-            return $this->getFunction($function_name);
-        }
-
         return $this->functions;
     }
 
     /**
-     * Flag for determining if API request has errors
-     *
-     * @return boolean
+     * Get the API response data.
      */
-    public function isSuccess()
+    public function getResponse(string|null $functionName = null): array
+    {
+        if (! is_null($functionName)) {
+            return $this->getFunction($functionName);
+        }
+
+        return $this->data;
+    }
+
+    /**
+     * Flag for determining if the API response contains errors.
+     */
+    public function isSuccess(): bool
     {
         return $this->success;
     }
 
     /**
-     * Check if function name exists in the functions list
-     *
-     * @param  string  $function_name The function name
-     *
-     * @return boolean
+     * Check if a function name exists in the functions list.
      */
-    protected function isValidFunction(string $function_name)
+    protected function isValidFunction(string $functionName): bool
     {
-        return isset($this->functions[$function_name]);
+        return isset($this->data[$functionName]);
     }
 
     /**
-     * Parse the API request and set the API response
+     * Parse the raw API response and set the response data.
      *
-     * @param string $response_body  The API response body
+     * @throws \pdeans\Miva\Api\Exceptions\JsonSerializeException
      */
-    protected function parseResponseBody(string $response_body)
+    protected function parseResponseBody(string $responseBody): void
     {
-        $resp = json_decode($response_body);
-
-        if (json_last_error()) {
-            throw new JsonSerializeException(json_last_error());
+        try {
+            $response = json_decode(json: $responseBody, flags: JSON_THROW_ON_ERROR);
+        } catch (JsonException $exception) {
+            throw new JsonSerializeException($exception->getMessage());
         }
 
         $functions = [];
 
-        if (is_object($resp)) {
-            $this->success = (bool)$resp->success;
+        if (is_object($response)) {
+            $this->success = (bool) $response->success;
 
             if ($this->success) {
-                $functions = [$this->functions_list[0] => [$resp]];
+                $functions = [$this->functions[0] => [$response]];
             } else {
                 $this->errors->success = $this->success;
-                $this->errors->code    = (string)$resp->error_code;
-                $this->errors->message = (string)$resp->error_message;
+                $this->errors->code = (string) $response->error_code;
+                $this->errors->message = (string) $response->error_message;
             }
-        } elseif (is_array($resp)) {
-            $functions_list_count = count($this->functions_list);
+        } elseif (is_array($response)) {
+            $functionsCount = count($this->functions);
 
-            foreach ($resp as $index => $results) {
-                $function_name  = $this->functions_list[($functions_list_count === 1 ? 0 : $index)];
+            foreach ($response as $index => $results) {
+                $functionName = $this->functions[($functionsCount === 1 ? 0 : $index)];
 
                 if (is_array($results)) {
                     foreach ($results as $result) {
-                        $functions[$function_name][] = $result;
+                        $functions[$functionName][] = $result;
                     }
                 } elseif (is_object($results)) {
-                    $functions[$function_name][] = $results;
+                    $functions[$functionName][] = $results;
                 }
             }
         }
 
-        if ($this->success === null && empty(get_object_vars($this->errors))) {
+        if (is_null($this->success) && empty(get_object_vars($this->errors))) {
             $this->success = true;
         }
 
-        $this->functions = $functions;
+        $this->data = $functions;
     }
 
     /**
-     * Throws an invalid function name error
-     *
-     * @param  string $function_name The function name
+     * Throw an invalid function name error.
      *
      * @throws \pdeans\Miva\Api\Exceptions\InvalidValueException
      */
-    protected function throwInvalidFunctionError(string $function_name)
+    protected function throwInvalidFunctionError(string $functionName): void
     {
-        throw new InvalidValueException('Function name "' . $function_name . '" invalid or missing from results list.');
+        throw new InvalidValueException('Function name "' . $functionName . '" invalid or missing from results list.');
     }
 }
