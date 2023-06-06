@@ -2,10 +2,10 @@
 
 namespace pdeans\Miva\Api;
 
-use pdeans\Http\Request;
-use pdeans\Http\Response;
-use pdeans\Miva\Api\Request as ApiRequest;
-use pdeans\Miva\Api\Response as ApiResponse;
+use pdeans\Http\Request as HttpRequest;
+use pdeans\Http\Response as HttpResponse;
+use pdeans\Miva\Api\Request;
+use pdeans\Miva\Api\Response;
 use pdeans\Miva\Api\Builders\FunctionBuilder;
 use pdeans\Miva\Api\Builders\RequestBuilder;
 use pdeans\Miva\Api\Exceptions\InvalidMethodCallException;
@@ -31,18 +31,18 @@ class Client
     protected array $headers;
 
     /**
-     * PSR-7 Request instance.
+     * PSR-7 Http request instance.
      *
      * @var \pdeans\Http\Request|null
      */
-    protected Request|null $prevRequest;
+    protected HttpRequest|null $prevRequest;
 
     /**
      * PSR-7 Response instance.
      *
      * @var \pdeans\Http\Response
      */
-    protected Response $prevResponse;
+    protected HttpResponse $prevResponse;
 
     /**
      * Api configuration options.
@@ -54,9 +54,9 @@ class Client
     /**
      * Api RequestBuilder instance.
      *
-     * @var \pdeans\Miva\Api\Builders\RequestBuilder
+     * @var \pdeans\Miva\Api\Builders\RequestBuilder|null
      */
-    protected RequestBuilder $request;
+    protected RequestBuilder|null $request;
 
     /**
      * Miva JSON API endpoint value.
@@ -177,7 +177,7 @@ class Client
     /**
      * Get the previous request instance.
      */
-    public function getPreviousRequest(): Request
+    public function getPreviousRequest(): HttpRequest
     {
         return $this->prevRequest;
     }
@@ -185,7 +185,7 @@ class Client
     /**
      * Get the previous response instance.
      */
-    public function getPreviousResponse(): Response
+    public function getPreviousResponse(): HttpResponse
     {
         return $this->prevResponse;
     }
@@ -205,7 +205,7 @@ class Client
      */
     public function getRequestBody(int $encodeOpts = JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT, int $depth = 512): string
     {
-        return (new ApiRequest($this->request))->getBody($encodeOpts, $depth);
+        return (new Request($this->request))->getBody($encodeOpts, $depth);
     }
 
     /**
@@ -221,7 +221,7 @@ class Client
      */
     public function send(bool $rawResponse = false): string|Response
     {
-        $request = new ApiRequest(
+        $request = new Request(
             $this->request,
             isset($this->options['http_client']) ? (array) $this->options['http_client'] : []
         );
@@ -240,7 +240,7 @@ class Client
 
         $responseBody = (string) $response->getBody();
 
-        return $rawResponse ? $responseBody : new ApiResponse($functionList, $responseBody);
+        return $rawResponse ? $responseBody : new Response($functionList, $responseBody);
     }
 
     /**

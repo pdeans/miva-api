@@ -43,9 +43,9 @@ class Response
     /**
      * Flag for determining if Api request was successful.
      *
-     * @var bool
+     * @var bool|null
      */
-    protected bool $success;
+    protected bool|null $success;
 
     /**
      * Create a new API response instance.
@@ -62,6 +62,7 @@ class Response
         $this->data = [];
         $this->errors = new stdClass();
         $this->functions = $requestFunctionsList;
+        $this->success = null;
 
         $this->parseResponseBody($responseBody);
     }

@@ -12,9 +12,9 @@ class ShowFilterBuilder extends FilterBuilder
     /**
      * API function name.
      *
-     * @var string
+     * @var string|null
      */
-    protected string $functionName;
+    protected string|null $functionName;
 
     /**
      * List of valid API function names.
