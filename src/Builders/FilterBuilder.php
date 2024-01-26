@@ -68,7 +68,7 @@ class FilterBuilder implements BuilderInterface
     /**
      * Add a filter to the filter value list.
      */
-    public function addFilter(): self
+    public function addFilter(): static
     {
         $name = strtolower($this->name);
 

@@ -85,7 +85,7 @@ class FunctionBuilder implements BuilderInterface
     /**
      * Set the number of records to return.
      */
-    public function count(int $count): self
+    public function count(int $count): static
     {
         $this->count = $count;
 
@@ -97,7 +97,7 @@ class FunctionBuilder implements BuilderInterface
      *
      * @throws \pdeans\Miva\Api\Exceptions\InvalidValueException
      */
-    public function filter(string $filterName, mixed $filterValue): self
+    public function filter(string $filterName, mixed $filterValue): static
     {
         if (trim($filterName) === '') {
             throw new InvalidValueException('Invalid value "' . $filterName . '" provided for filter name.');
@@ -111,7 +111,7 @@ class FunctionBuilder implements BuilderInterface
     /**
      * Add a list of filters to the filter list.
      */
-    public function filters(array $filters): self
+    public function filters(array $filters): static
     {
         foreach ($filters as $filterName => $filterValue) {
             $this->filter($filterName, $filterValue);
@@ -189,7 +189,7 @@ class FunctionBuilder implements BuilderInterface
     /**
      * Set the offset of the first record to return.
      */
-    public function offset(int $offset): self
+    public function offset(int $offset): static
     {
         $this->offset = $offset;
 
@@ -199,7 +199,7 @@ class FunctionBuilder implements BuilderInterface
     /**
      * Shorthand method to set the ondemandcolumns filter list.
      */
-    public function odc(array $columns): self
+    public function odc(array $columns): static
     {
         $this->ondemandcolumns($columns);
 
@@ -209,7 +209,7 @@ class FunctionBuilder implements BuilderInterface
     /**
      * Set the ondemandcolumns filter list
      */
-    public function ondemandcolumns(array $columns): self
+    public function ondemandcolumns(array $columns): static
     {
         $this->filter('ondemandcolumns', $columns);
 
@@ -219,7 +219,7 @@ class FunctionBuilder implements BuilderInterface
     /**
      * Set additional function input parameters.
      */
-    public function params(array $parameters): self
+    public function params(array $parameters): static
     {
         $this->parameterList = $parameters;
 
@@ -229,7 +229,7 @@ class FunctionBuilder implements BuilderInterface
     /**
      * Set the passphrase parameter.
      */
-    public function passphrase(string $passphrase): self
+    public function passphrase(string $passphrase): static
     {
         $this->passphrase = $passphrase;
 
@@ -241,7 +241,7 @@ class FunctionBuilder implements BuilderInterface
      *
      * @throws \pdeans\Miva\Api\Exceptions\InvalidValueException
      */
-    public function search(mixed ...$args): self
+    public function search(mixed ...$args): static
     {
         $argsCount = func_num_args();
 
@@ -273,7 +273,7 @@ class FunctionBuilder implements BuilderInterface
     /**
      * Add a show filter to the filter list.
      */
-    public function show(string $showValue): self
+    public function show(string $showValue): static
     {
         $this->filterList[] = (new FilterBuilder('show', $showValue, $this->name))->addFilter();
 
@@ -283,7 +283,7 @@ class FunctionBuilder implements BuilderInterface
     /**
      * Set the column to sort results.
      */
-    public function sort(string $sortColumn): self
+    public function sort(string $sortColumn): static
     {
         $this->sort = strtolower($sortColumn);
 
@@ -293,7 +293,7 @@ class FunctionBuilder implements BuilderInterface
     /**
      * Set the column to sort results in descending order.
      */
-    public function sortDesc(string $sortColumn): self
+    public function sortDesc(string $sortColumn): static
     {
         $this->sort = '-' . strtolower(ltrim($sortColumn, '-'));
 

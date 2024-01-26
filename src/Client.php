@@ -40,9 +40,9 @@ class Client
     /**
      * PSR-7 Response instance.
      *
-     * @var \pdeans\Http\Response
+     * @var \pdeans\Http\Response|null
      */
-    protected HttpResponse $prevResponse;
+    protected HttpResponse|null $prevResponse;
 
     /**
      * Api configuration options.
@@ -52,11 +52,18 @@ class Client
     protected array $options;
 
     /**
+     * Api Request instance.
+     *
+     * @var \pdeans\Miva\Api\Request|null
+     */
+    protected Request|null $request;
+
+    /**
      * Api RequestBuilder instance.
      *
      * @var \pdeans\Miva\Api\Builders\RequestBuilder|null
      */
-    protected RequestBuilder|null $request;
+    protected RequestBuilder|null $requestBuilder;
 
     /**
      * Miva JSON API endpoint value.
@@ -71,13 +78,16 @@ class Client
     public function __construct(array $options)
     {
         $this->setOptions($options);
-        $this->prevRequest = null;
 
         $this->auth = new Auth(
             (string) $this->options['access_token'],
             (string) $this->options['private_key'],
             isset($this->options['hmac']) ? (string) $this->options['hmac'] : 'sha256'
         );
+
+        $this->prevRequest = null;
+        $this->prevResponse = null;
+        $this->request = null;
 
         $this->createRequest();
         $this->setUrl($this->options['url']);
@@ -92,13 +102,13 @@ class Client
     /**
      * Add API function to request function list.
      */
-    public function add(FunctionBuilder|null $function = null): self
+    public function add(FunctionBuilder|null $function = null): static
     {
         if (! is_null($function)) {
-            $this->request->function = $function;
+            $this->requestBuilder->function = $function;
         }
 
-        $this->request->addFunction();
+        $this->requestBuilder->addFunction();
 
         return $this;
     }
@@ -106,7 +116,7 @@ class Client
     /**
      * Add HTTP request header.
      */
-    public function addHeader(string $headerName, string $headerValue): self
+    public function addHeader(string $headerName, string $headerValue): static
     {
         $this->headers[$headerName] = $headerValue;
 
@@ -116,7 +126,7 @@ class Client
     /**
      * Add list of HTTP request headers.
      */
-    public function addHeaders(array $headers): self
+    public function addHeaders(array $headers): static
     {
         foreach ($headers as $headerName => $headerValue) {
             $this->addHeader($headerName, $headerValue);
@@ -128,9 +138,9 @@ class Client
     /**
      * Clear the current request builder instance.
      */
-    protected function clearRequest(): self
+    protected function clearRequest(): static
     {
-        $this->request = null;
+        $this->requestBuilder = null;
 
         return $this;
     }
@@ -138,9 +148,9 @@ class Client
     /**
      * Create a new request builder instance.
      */
-    protected function createRequest(): self
+    protected function createRequest(): static
     {
-        $this->request = new RequestBuilder(
+        $this->requestBuilder = new RequestBuilder(
             (string) $this->options['store_code'],
             isset($this->options['timestamp']) ? (bool) $this->options['timestamp'] : true
         );
@@ -151,9 +161,9 @@ class Client
     /**
      * Create a new API function.
      */
-    public function func(string $name): self
+    public function func(string $name): static
     {
-        $this->request->newFunction($name);
+        $this->requestBuilder->newFunction($name);
 
         return $this;
     }
@@ -163,7 +173,7 @@ class Client
      */
     public function getFunctionList(): array
     {
-        return $this->request->getFunctionList();
+        return $this->requestBuilder->getFunctionList();
     }
 
     /**
@@ -177,7 +187,7 @@ class Client
     /**
      * Get the previous request instance.
      */
-    public function getPreviousRequest(): HttpRequest
+    public function getPreviousRequest(): HttpRequest|null
     {
         return $this->prevRequest;
     }
@@ -185,7 +195,7 @@ class Client
     /**
      * Get the previous response instance.
      */
-    public function getPreviousResponse(): HttpResponse
+    public function getPreviousResponse(): HttpResponse|null
     {
         return $this->prevResponse;
     }
@@ -199,13 +209,29 @@ class Client
     }
 
     /**
+     * Get the API Request instance.
+     */
+    public function getRequest(): Request
+    {
+        if (! $this->request instanceof Request) {
+            $this->request = new Request(
+                $this->requestBuilder,
+                isset($this->options['http_client']) ? (array) $this->options['http_client'] : []
+            );
+        }
+
+        return $this->request;
+    }
+
+    /**
      * Get API request body.
      *
      * @link https://php.net/manual/en/json.constants.php Available options for the $encodeOpts parameter.
      */
     public function getRequestBody(int $encodeOpts = JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT, int $depth = 512): string
     {
-        return (new Request($this->request))->getBody($encodeOpts, $depth);
+        return $this->getRequest()
+            ->getBody($encodeOpts, $depth);
     }
 
     /**
@@ -217,15 +243,26 @@ class Client
     }
 
     /**
+     * Refresh the request builder instance.
+     */
+    protected function refreshRequestBuilder(): static
+    {
+        if ($this->request instanceof Request) {
+            $this->clearRequest();
+            $this->createRequest();
+
+            $this->request->setRequestBuilder($this->requestBuilder);
+        }
+
+        return $this;
+    }
+
+    /**
      * Send the API request.
      */
     public function send(bool $rawResponse = false): string|Response
     {
-        $request = new Request(
-            $this->request,
-            isset($this->options['http_client']) ? (array) $this->options['http_client'] : []
-        );
-
+        $request = $this->getRequest();
         $response = $request->sendRequest($this->getUrl(), $this->auth, $this->getHeaders());
 
         $this->prevRequest = $request->getPreviousRequest();
@@ -235,8 +272,7 @@ class Client
         $functionList = array_keys($this->getFunctionList());
 
         // Refresh request builder
-        $this->clearRequest();
-        $this->createRequest();
+        $this->refreshRequestBuilder();
 
         $responseBody = (string) $response->getBody();
 
@@ -246,7 +282,7 @@ class Client
     /**
      * Set the API client options.
      */
-    public function setOptions(array $options): self
+    public function setOptions(array $options): static
     {
         $this->options = $this->validateOptions($options);
 
@@ -256,7 +292,7 @@ class Client
     /**
      * Set the API endpoint url.
      */
-    public function setUrl(string $url): self
+    public function setUrl(string $url): static
     {
         $this->url = $url;
 
@@ -296,10 +332,10 @@ class Client
     /**
      * Invoke \pdeans\Miva\Api\Builders\FunctionBuilder helper methods.
      */
-    public function __call(string $method, array $arguments): self
+    public function __call(string $method, array $arguments): static
     {
         if (class_exists(FunctionBuilder::class) && in_array($method, get_class_methods(FunctionBuilder::class))) {
-            $this->request->function->{$method}(...$arguments);
+            $this->requestBuilder->function->{$method}(...$arguments);
 
             return $this;
         }

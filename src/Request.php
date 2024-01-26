@@ -48,7 +48,7 @@ class Request
      *
      * @var \pdeans\Miva\Api\Builders\RequestBuilder
      */
-    protected RequestBuilder $request;
+    protected RequestBuilder $requestBuilder;
 
     /**
      * PSR-7 stream factory instance.
@@ -60,14 +60,15 @@ class Request
     /**
      * Create a new API request instance.
      */
-    public function __construct(RequestBuilder $request, array $clientOpts = [])
+    public function __construct(RequestBuilder $requestBuilder, array $clientOpts = [])
     {
-        $this->request = $request;
         $this->client = new Client($clientOpts);
         $this->headers = ['Content-Type' => 'application/json'];
         $this->body = '';
         $this->prevRequest = null;
         $this->streamFactory = new StreamFactory();
+
+        $this->setRequestBuilder($requestBuilder);
     }
 
     /**
@@ -80,7 +81,7 @@ class Request
     public function getBody(int $encodeOpts = JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT, int $depth = 512): string
     {
         try {
-            $this->body = json_encode($this->request, $encodeOpts, $depth);
+            $this->body = json_encode($this->requestBuilder, $encodeOpts, $depth);
         } catch (JsonException $exception) {
             throw new JsonSerializeException($exception->getMessage());
         }
@@ -94,6 +95,22 @@ class Request
     public function getPreviousRequest(): HttpRequest|null
     {
         return $this->prevRequest;
+    }
+
+    /**
+     * Get the request builder instance.
+     */
+    public function getRequestBuilder(): RequestBuilder
+    {
+        return $this->requestBuilder;
+    }
+
+    /**
+     * Release the client request handler.
+     */
+    public function releaseClient(): void
+    {
+        $this->client->release();
     }
 
     /**
@@ -114,5 +131,15 @@ class Request
         $this->prevRequest = $request;
 
         return $this->client->sendRequest($request);
+    }
+
+    /**
+     * Set the request builder instance.
+     */
+    public function setRequestBuilder(RequestBuilder $requestBuilder): static
+    {
+        $this->requestBuilder = $requestBuilder;
+
+        return $this;
     }
 }

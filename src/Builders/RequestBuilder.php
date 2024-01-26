@@ -60,7 +60,7 @@ class RequestBuilder implements BuilderInterface
     /**
      * Add the current FunctionBuilder instance to the API request function list.
      */
-    public function addFunction(): self
+    public function addFunction(): static
     {
         $this->functionList[$this->function->name][] = $this->function;
 
@@ -129,7 +129,7 @@ class RequestBuilder implements BuilderInterface
     /**
      * Set the function property with a new function builder instance and add function name to function list.
      */
-    public function newFunction(string $name): self
+    public function newFunction(string $name): static
     {
         $this->function = new FunctionBuilder($name);
 
