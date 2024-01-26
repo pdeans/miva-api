@@ -89,7 +89,7 @@ class Client
         $this->prevResponse = null;
         $this->request = null;
 
-        $this->createRequest();
+        $this->createRequestBuilder();
         $this->setUrl($this->options['url']);
 
         $this->headers = [];
@@ -138,7 +138,7 @@ class Client
     /**
      * Clear the current request builder instance.
      */
-    protected function clearRequest(): static
+    protected function clearRequestBuilder(): static
     {
         $this->requestBuilder = null;
 
@@ -148,7 +148,7 @@ class Client
     /**
      * Create a new request builder instance.
      */
-    protected function createRequest(): static
+    protected function createRequestBuilder(): static
     {
         $this->requestBuilder = new RequestBuilder(
             (string) $this->options['store_code'],
@@ -247,10 +247,10 @@ class Client
      */
     protected function refreshRequestBuilder(): static
     {
-        if ($this->request instanceof Request) {
-            $this->clearRequest();
-            $this->createRequest();
+        $this->clearRequestBuilder();
+        $this->createRequestBuilder();
 
+        if ($this->request instanceof Request) {
             $this->request->setRequestBuilder($this->requestBuilder);
         }
 
