@@ -4,7 +4,6 @@ namespace pdeans\Miva\Api;
 
 use JsonException;
 use pdeans\Http\Client;
-use pdeans\Http\Factories\StreamFactory;
 use pdeans\Http\Request as HttpRequest;
 use pdeans\Http\Response as HttpResponse;
 use pdeans\Miva\Api\Builders\RequestBuilder;
@@ -51,13 +50,6 @@ class Request
     protected RequestBuilder $requestBuilder;
 
     /**
-     * PSR-7 stream factory instance.
-     *
-     * @var \pdeans\Http\Factories\StreamFactory
-     */
-    protected StreamFactory $streamFactory;
-
-    /**
      * Create a new API request instance.
      */
     public function __construct(RequestBuilder $requestBuilder, array $clientOpts = [])
@@ -66,7 +58,6 @@ class Request
         $this->headers = ['Content-Type' => 'application/json'];
         $this->body = '';
         $this->prevRequest = null;
-        $this->streamFactory = new StreamFactory();
 
         $this->setRequestBuilder($requestBuilder);
     }
@@ -126,7 +117,7 @@ class Request
             $auth->getAuthHeader($body)
         );
 
-        $request = new HttpRequest($url, 'POST', $this->streamFactory->createStream($body), $headers);
+        $request = new HttpRequest($url, 'POST', $this->client->getStream($body), $headers);
 
         $this->prevRequest = $request;
 
