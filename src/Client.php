@@ -31,20 +31,6 @@ class Client
     protected array $headers;
 
     /**
-     * PSR-7 Http request instance.
-     *
-     * @var \pdeans\Http\Request|null
-     */
-    protected HttpRequest|null $prevRequest;
-
-    /**
-     * PSR-7 Response instance.
-     *
-     * @var \pdeans\Http\Response|null
-     */
-    protected HttpResponse|null $prevResponse;
-
-    /**
      * Api configuration options.
      *
      * @var array
@@ -85,8 +71,6 @@ class Client
             isset($this->options['hmac']) ? (string) $this->options['hmac'] : 'sha256'
         );
 
-        $this->prevRequest = null;
-        $this->prevResponse = null;
         $this->request = null;
 
         $this->createRequestBuilder();
@@ -189,7 +173,7 @@ class Client
      */
     public function getPreviousRequest(): HttpRequest|null
     {
-        return $this->prevRequest;
+        return $this->request?->request();
     }
 
     /**
@@ -197,7 +181,7 @@ class Client
      */
     public function getPreviousResponse(): HttpResponse|null
     {
-        return $this->prevResponse;
+        return $this->request?->response();
     }
 
     /**
@@ -263,10 +247,8 @@ class Client
     public function send(bool $rawResponse = false): string|Response
     {
         $request = $this->getRequest();
-        $response = $request->sendRequest($this->getUrl(), $this->auth, $this->getHeaders());
 
-        $this->prevRequest = $request->getPreviousRequest();
-        $this->prevResponse = $response;
+        $response = $request->sendRequest($this->getUrl(), $this->auth, $this->getHeaders());
 
         // Save the function list names before clearing the request builder
         $functionList = array_keys($this->getFunctionList());

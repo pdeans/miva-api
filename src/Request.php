@@ -19,7 +19,7 @@ class Request
      *
      * @var string
      */
-    protected string $body;
+    protected string $body = '';
 
     /**
      * HTTP client (cURL) instance.
@@ -36,11 +36,18 @@ class Request
     protected array $headers;
 
     /**
-     * The previous API request instance.
+     * The HTTP request instance.
      *
      * @var \pdeans\Http\Request|null
      */
-    protected HttpRequest|null $prevRequest;
+    protected HttpRequest|null $request = null;
+
+    /**
+     * The HTTP response instance.
+     *
+     * @var \pdeans\Http\Response|null
+     */
+    protected HttpResponse|null $response = null;
 
     /**
      * The API request builder instance.
@@ -56,8 +63,6 @@ class Request
     {
         $this->client = new Client($clientOpts);
         $this->headers = ['Content-Type' => 'application/json'];
-        $this->body = '';
-        $this->prevRequest = null;
 
         $this->setRequestBuilder($requestBuilder);
     }
@@ -81,14 +86,6 @@ class Request
     }
 
     /**
-     * Get the previous API request.
-     */
-    public function getPreviousRequest(): HttpRequest|null
-    {
-        return $this->prevRequest;
-    }
-
-    /**
      * Get the request builder instance.
      */
     public function getRequestBuilder(): RequestBuilder
@@ -105,10 +102,28 @@ class Request
     }
 
     /**
+     * Get the API request.
+     */
+    public function request(): HttpRequest|null
+    {
+        return $this->request;
+    }
+
+    /**
+     * Get the previous API response.
+     */
+    public function response(): HttpResponse|null
+    {
+        return $this->response;
+    }
+
+    /**
      * Send an API request.
      */
     public function sendRequest(string $url, Auth $auth, array $httpHeaders = []): HttpResponse
     {
+        $this->response = null;
+
         $body = $this->getBody();
 
         $headers = array_merge(
@@ -117,11 +132,11 @@ class Request
             $auth->getAuthHeader($body)
         );
 
-        $request = new HttpRequest($url, 'POST', $this->client->getStream($body), $headers);
+        $this->request = new HttpRequest($url, 'POST', $this->client->getStream($body), $headers);
 
-        $this->prevRequest = $request;
+        $this->response = $this->client->sendRequest($this->request);
 
-        return $this->client->sendRequest($request);
+        return $this->response;
     }
 
     /**
