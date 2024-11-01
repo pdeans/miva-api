@@ -13,6 +13,23 @@ use pdeans\Miva\Api\Exceptions\MissingRequiredValueException;
 
 /**
  * This is the client class to interact with the Miva JSON API.
+ *
+ * @method \pdeans\Miva\Api\Builders\FunctionBuilder count(int $count)
+ * @method \pdeans\Miva\Api\Builders\FunctionBuilder filter(string $filterName, mixed $filterValue)
+ * @method \pdeans\Miva\Api\Builders\FunctionBuilder filters(array $filters)
+ * @method string formatParameterName(string $paramName)
+ * @method array getCommonParameterList()
+ * @method array getParameterList()
+ * @method array getRequestParameters()
+ * @method \pdeans\Miva\Api\Builders\FunctionBuilder offset(int $offset)
+ * @method \pdeans\Miva\Api\Builders\FunctionBuilder odc(array $columns)
+ * @method \pdeans\Miva\Api\Builders\FunctionBuilder ondemandcolumns(array $columns)
+ * @method \pdeans\Miva\Api\Builders\FunctionBuilder params(array $parameters)
+ * @method \pdeans\Miva\Api\Builders\FunctionBuilder passphrase(string $passphrase)
+ * @method \pdeans\Miva\Api\Builders\FunctionBuilder search(mixed ...$args)
+ * @method \pdeans\Miva\Api\Builders\FunctionBuilder show(string $showValue)
+ * @method \pdeans\Miva\Api\Builders\FunctionBuilder sort(string $sortColumn)
+ * @method \pdeans\Miva\Api\Builders\FunctionBuilder sortDesc(string $sortColumn)
  */
 class Client
 {
@@ -29,20 +46,6 @@ class Client
      * @var array
      */
     protected array $headers;
-
-    /**
-     * PSR-7 Http request instance.
-     *
-     * @var \pdeans\Http\Request|null
-     */
-    protected HttpRequest|null $prevRequest;
-
-    /**
-     * PSR-7 Response instance.
-     *
-     * @var \pdeans\Http\Response|null
-     */
-    protected HttpResponse|null $prevResponse;
 
     /**
      * Api configuration options.
@@ -85,8 +88,6 @@ class Client
             isset($this->options['hmac']) ? (string) $this->options['hmac'] : 'sha256'
         );
 
-        $this->prevRequest = null;
-        $this->prevResponse = null;
         $this->request = null;
 
         $this->createRequestBuilder();
@@ -189,7 +190,7 @@ class Client
      */
     public function getPreviousRequest(): HttpRequest|null
     {
-        return $this->prevRequest;
+        return $this->request?->request();
     }
 
     /**
@@ -197,7 +198,7 @@ class Client
      */
     public function getPreviousResponse(): HttpResponse|null
     {
-        return $this->prevResponse;
+        return $this->request?->response();
     }
 
     /**
@@ -263,10 +264,8 @@ class Client
     public function send(bool $rawResponse = false): string|Response
     {
         $request = $this->getRequest();
-        $response = $request->sendRequest($this->getUrl(), $this->auth, $this->getHeaders());
 
-        $this->prevRequest = $request->getPreviousRequest();
-        $this->prevResponse = $response;
+        $response = $request->sendRequest($this->getUrl(), $this->auth, $this->getHeaders());
 
         // Save the function list names before clearing the request builder
         $functionList = array_keys($this->getFunctionList());
