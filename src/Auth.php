@@ -112,7 +112,7 @@ final class Auth
     /**
      * Set the list of valid HMAC types
      */
-    protected function setHmacList(): self
+    protected function setHmacList(): static
     {
         $this->hmacList = [
             'sha1',
@@ -125,7 +125,7 @@ final class Auth
     /**
      * Set the HMAC type.
      */
-    protected function setHmacType(string $hmacType): self
+    protected function setHmacType(string $hmacType): static
     {
         if (!$this->hmacList) {
             $this->setHmacList();

@@ -389,7 +389,7 @@ $response = $api->send();
 $response = $api->send(true);
 ```
 
-You may preview the current request body at any time before sending the request by using the `getRequestBody` method. Helpful for debugging requests.
+You may preview the current request body at any time before sending the request by using the `getRequestBody` method. This is helpful for debugging requests.
 
 ```php
 echo '<pre>', $api->getRequestBody(), '</pre>';

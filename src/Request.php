@@ -4,7 +4,6 @@ namespace pdeans\Miva\Api;
 
 use JsonException;
 use pdeans\Http\Client;
-use pdeans\Http\Factories\StreamFactory;
 use pdeans\Http\Request as HttpRequest;
 use pdeans\Http\Response as HttpResponse;
 use pdeans\Miva\Api\Builders\RequestBuilder;
@@ -48,26 +47,19 @@ class Request
      *
      * @var \pdeans\Miva\Api\Builders\RequestBuilder
      */
-    protected RequestBuilder $request;
-
-    /**
-     * PSR-7 stream factory instance.
-     *
-     * @var \pdeans\Http\Factories\StreamFactory
-     */
-    protected StreamFactory $streamFactory;
+    protected RequestBuilder $requestBuilder;
 
     /**
      * Create a new API request instance.
      */
-    public function __construct(RequestBuilder $request, array $clientOpts = [])
+    public function __construct(RequestBuilder $requestBuilder, array $clientOpts = [])
     {
-        $this->request = $request;
         $this->client = new Client($clientOpts);
         $this->headers = ['Content-Type' => 'application/json'];
         $this->body = '';
         $this->prevRequest = null;
-        $this->streamFactory = new StreamFactory();
+
+        $this->setRequestBuilder($requestBuilder);
     }
 
     /**
@@ -80,7 +72,7 @@ class Request
     public function getBody(int $encodeOpts = JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT, int $depth = 512): string
     {
         try {
-            $this->body = json_encode($this->request, $encodeOpts, $depth);
+            $this->body = json_encode($this->requestBuilder, $encodeOpts, $depth);
         } catch (JsonException $exception) {
             throw new JsonSerializeException($exception->getMessage());
         }
@@ -97,6 +89,22 @@ class Request
     }
 
     /**
+     * Get the request builder instance.
+     */
+    public function getRequestBuilder(): RequestBuilder
+    {
+        return $this->requestBuilder;
+    }
+
+    /**
+     * Release the client request handler.
+     */
+    public function releaseClient(): void
+    {
+        $this->client->release();
+    }
+
+    /**
      * Send an API request.
      */
     public function sendRequest(string $url, Auth $auth, array $httpHeaders = []): HttpResponse
@@ -109,10 +117,20 @@ class Request
             $auth->getAuthHeader($body)
         );
 
-        $request = new HttpRequest($url, 'POST', $this->streamFactory->createStream($body), $headers);
+        $request = new HttpRequest($url, 'POST', $this->client->getStream($body), $headers);
 
         $this->prevRequest = $request;
 
         return $this->client->sendRequest($request);
+    }
+
+    /**
+     * Set the request builder instance.
+     */
+    public function setRequestBuilder(RequestBuilder $requestBuilder): static
+    {
+        $this->requestBuilder = $requestBuilder;
+
+        return $this;
     }
 }

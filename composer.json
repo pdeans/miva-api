@@ -13,7 +13,7 @@
     "require": {
         "php": "^8.1",
         "ext-json": "*",
-        "pdeans/http": "^2.0.2"
+        "pdeans/http": "^2.0.3"
     },
     "autoload": {
         "psr-4": {
