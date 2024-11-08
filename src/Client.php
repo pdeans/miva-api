@@ -13,23 +13,6 @@ use pdeans\Miva\Api\Exceptions\MissingRequiredValueException;
 
 /**
  * This is the client class to interact with the Miva JSON API.
- *
- * @method \pdeans\Miva\Api\Builders\FunctionBuilder count(int $count)
- * @method \pdeans\Miva\Api\Builders\FunctionBuilder filter(string $filterName, mixed $filterValue)
- * @method \pdeans\Miva\Api\Builders\FunctionBuilder filters(array $filters)
- * @method string formatParameterName(string $paramName)
- * @method array getCommonParameterList()
- * @method array getParameterList()
- * @method array getRequestParameters()
- * @method \pdeans\Miva\Api\Builders\FunctionBuilder offset(int $offset)
- * @method \pdeans\Miva\Api\Builders\FunctionBuilder odc(array $columns)
- * @method \pdeans\Miva\Api\Builders\FunctionBuilder ondemandcolumns(array $columns)
- * @method \pdeans\Miva\Api\Builders\FunctionBuilder params(array $parameters)
- * @method \pdeans\Miva\Api\Builders\FunctionBuilder passphrase(string $passphrase)
- * @method \pdeans\Miva\Api\Builders\FunctionBuilder search(mixed ...$args)
- * @method \pdeans\Miva\Api\Builders\FunctionBuilder show(string $showValue)
- * @method \pdeans\Miva\Api\Builders\FunctionBuilder sort(string $sortColumn)
- * @method \pdeans\Miva\Api\Builders\FunctionBuilder sortDesc(string $sortColumn)
  */
 class Client
 {
